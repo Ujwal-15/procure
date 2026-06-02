@@ -1,5 +1,8 @@
 "use client";
 
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+
 interface DonutSlice {
   label: string;
   value: number;
@@ -7,9 +10,9 @@ interface DonutSlice {
 }
 
 interface DonutChartProps {
-  data: DonutSlice[];
-  size?: number;
-  dark?: boolean;
+  data:         DonutSlice[];
+  size?:        number;
+  dark?:        boolean;
   centerLabel?: string;
 }
 
@@ -34,14 +37,14 @@ function arcPath(cx: number, cy: number, outerR: number, innerR: number, startDe
 }
 
 export default function DonutChart({ data, size = 160, dark = false, centerLabel }: DonutChartProps) {
-  const cx = size / 2;
-  const cy = size / 2;
+  const cx     = size / 2;
+  const cy     = size / 2;
   const outerR = size * 0.46;
   const innerR = size * 0.31;
   const gapDeg = 3;
 
   const total = data.reduce((s, d) => s + d.value, 0);
-  let cursor = 0;
+  let cursor  = 0;
 
   const slices = data.map(d => {
     const sweep = (d.value / total) * (360 - gapDeg * data.length);
@@ -52,6 +55,7 @@ export default function DonutChart({ data, size = 160, dark = false, centerLabel
 
   return (
     <div className="flex items-center gap-4">
+      {/* SVG donut */}
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           {slices.map((s, i) => (
@@ -69,19 +73,22 @@ export default function DonutChart({ data, size = 160, dark = false, centerLabel
         </div>
       </div>
 
-      {/* Legend */}
+      {/* Legend — dot · label · cost · % */}
       <div className="flex-1 space-y-2.5">
         {data.map(d => {
-          const pct = Math.round((d.value / total) * 100);
+          const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
           return (
-            <div key={d.label} className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-                <span className="text-[11.5px] truncate" style={{ color: dark ? "rgba(255,255,255,0.6)" : "var(--text-2)" }}>
-                  {d.label}
-                </span>
-              </div>
-              <span className="text-[11.5px] font-semibold shrink-0" style={{ color: dark ? "rgba(255,255,255,0.9)" : "var(--text-1)" }}>
+            <div key={d.label} className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+              <span className="text-[11.5px] flex-1 min-w-0 truncate" style={{ color: dark ? "rgba(255,255,255,0.65)" : "var(--text-2)" }}>
+                {d.label}
+              </span>
+              {/* cost */}
+              <span className="text-[10.5px] shrink-0" style={{ color: dark ? "rgba(255,255,255,0.45)" : "var(--text-3)" }}>
+                {fmt(d.value)}
+              </span>
+              {/* pct */}
+              <span className="text-[11.5px] font-semibold shrink-0 w-8 text-right" style={{ color: dark ? "rgba(255,255,255,0.9)" : "var(--text-1)" }}>
                 {pct}%
               </span>
             </div>

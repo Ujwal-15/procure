@@ -11,8 +11,8 @@ import { useData } from "@/contexts/DataContext";
 import type { Department } from "@/types";
 
 const DEPT_COLORS: Record<Department, string> = {
-  event: "#FF9F0A", r_and_d: "#0071E3", embedded: "#AF52DE",
-  software: "#34C759", general_office: "#8E8E93",
+  event: "#FF9F0A", r_and_d: "#006FBA", embedded: "#00BDCD",
+  software: "#00AE5E", general_office: "#8E8E93",
 };
 
 /* ── Custom bar chart ── */
@@ -33,7 +33,7 @@ function SpendBars({ data }: { data: { month: string; amount: number }[] }) {
             </span>
             <div className="w-full relative rounded-xl overflow-hidden" style={{ height: "130px", backgroundColor: "var(--surface-2)" }}>
               <div className="absolute bottom-0 left-0 right-0 rounded-xl transition-all"
-                style={{ height: `${pct * 100}%`, background: isLast ? "linear-gradient(180deg, #818CF8 0%, #4F46E5 100%)" : "linear-gradient(180deg, #818CF8 0%, #6366F1 100%)", opacity: isLast ? 1 : 0.65 }}
+                style={{ height: `${pct * 100}%`, background: isLast ? "linear-gradient(180deg, #00BDCD 0%, #006FBA 100%)" : "linear-gradient(180deg, #00BDCD 0%, #006FBA 100%)", opacity: isLast ? 1 : 0.65 }}
               />
             </div>
             <span className="text-[10.5px] font-medium" style={{ color: isLast ? "var(--primary)" : "var(--text-3)" }}>{d.month}</span>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
             <SpendBars data={spendByMonth} />
           </div>
 
-          <div className="rounded-2xl p-5" style={{ background: "linear-gradient(160deg, #0D1270 0%, #181DA0 100%)" }}>
+          <div className="rounded-2xl p-5" style={{ background: "linear-gradient(160deg, #001E3C 0%, #00437A 100%)" }}>
             <div className="mb-4">
               <h3 className="text-[13px] font-semibold" style={{ color: "#fff" }}>By Department</h3>
               <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Jan – May 2026</p>

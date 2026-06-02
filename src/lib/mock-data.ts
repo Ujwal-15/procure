@@ -360,9 +360,9 @@ export const SPEND_BY_MONTH = [
 
 export const SPEND_BY_DEPARTMENT = [
   { department: "Event",          amount: 3_30_000, color: "#FF9F0A" },
-  { department: "R&D",            amount: 1_03_000, color: "#0071E3" },
-  { department: "Embedded",       amount:   58_600, color: "#AF52DE" },
-  { department: "Software",       amount:   15_000, color: "#34C759" },
+  { department: "R&D",            amount: 1_03_000, color: "#006FBA" },
+  { department: "Embedded",       amount:   58_600, color: "#00BDCD" },
+  { department: "Software",       amount:   15_000, color: "#00AE5E" },
   { department: "General Office", amount:   16_200, color: "#8E8E93" },
 ];
 

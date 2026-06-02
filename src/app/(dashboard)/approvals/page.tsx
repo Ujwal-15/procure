@@ -21,7 +21,7 @@ function ApprovalRuleBanner() {
       <div className="flex items-center gap-3">
         <div className="flex-1 flex items-center gap-3 p-3.5 rounded-xl border" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-2)" }}>
           <div className="relative shrink-0">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg,#4F46E5,#7C3AED)" }}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #006FBA, #00BDCD)" }}>
               <span className="text-white text-[12px] font-bold">JI</span>
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center border-2 border-white" style={{ backgroundColor: "var(--warning)" }}>
@@ -38,7 +38,7 @@ function ApprovalRuleBanner() {
         </div>
         <div className="flex-1 flex items-center gap-3 p-3.5 rounded-xl border" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-2)" }}>
           <div className="flex gap-1.5 shrink-0">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg,#4F46E5,#7C3AED)" }}>AL</div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #006FBA, #00BDCD)" }}>AL</div>
             <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 text-[10px] font-bold" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)", color: "var(--text-2)" }}>SA</div>
           </div>
           <div>

@@ -52,8 +52,8 @@ function ProgressBar({ paid, total }: { paid: number; total: number }) {
           style={{
             width: `${pct}%`,
             background: pct === 100
-              ? "linear-gradient(90deg, #10B981 0%, #34D399 100%)"
-              : "linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%)",
+              ? "linear-gradient(90deg, #00AE5E 0%, #00D47A 100%)"
+              : "linear-gradient(90deg, #006FBA 0%, #00BDCD 100%)",
           }}
         />
       </div>

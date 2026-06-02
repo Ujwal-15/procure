@@ -52,31 +52,31 @@ export const DEPARTMENT_LABELS: Record<Department, string> = {
 };
 
 export const DEPARTMENT_COLORS: Record<Department, { bg: string; text: string }> = {
-  embedded:      { bg: "rgba(124,58,237,0.12)",  text: "#7C3AED" },
-  r_and_d:       { bg: "rgba(79,70,229,0.12)",   text: "#4F46E5" },
-  software:      { bg: "rgba(16,185,129,0.12)",  text: "#10B981" },
-  event:         { bg: "rgba(245,158,11,0.12)",  text: "#F59E0B" },
-  general_office:{ bg: "rgba(156,163,175,0.15)", text: "#6B7280" },
+  embedded:      { bg: "rgba(0,189,205,0.12)",  text: "#00BDCD" },  /* brand secondary teal */
+  r_and_d:       { bg: "rgba(0,111,186,0.12)",  text: "#006FBA" },  /* brand primary blue */
+  software:      { bg: "rgba(0,174,94,0.12)",   text: "#00AE5E" },  /* brand success green */
+  event:         { bg: "rgba(245,158,11,0.12)", text: "#F59E0B" },  /* amber — events */
+  general_office:{ bg: "rgba(156,163,175,0.15)",text: "#6B7280" },  /* neutral grey */
 };
 
 export const STATUS_CONFIG: Record<RequestStatus, { label: string; color: string; bg: string }> = {
-  draft:            { label: "Draft",           color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
-  pending_approval: { label: "Pending Approval",color: "#F59E0B", bg: "rgba(245,158,11,0.12)"  },
-  approved:         { label: "Approved",        color: "#10B981", bg: "rgba(16,185,129,0.12)"  },
-  rejected:         { label: "Rejected",        color: "#EF4444", bg: "rgba(239,68,68,0.12)"   },
-  ordered:          { label: "Ordered",         color: "#4F46E5", bg: "rgba(79,70,229,0.12)"   },
-  advance_paid:     { label: "Advance Paid",    color: "#7C3AED", bg: "rgba(124,58,237,0.12)"  },
-  received:         { label: "Received",        color: "#10B981", bg: "rgba(16,185,129,0.12)"  },
-  invoice_uploaded: { label: "Invoice Uploaded",color: "#F59E0B", bg: "rgba(245,158,11,0.12)"  },
-  partially_paid:   { label: "Partially Paid",  color: "#F97316", bg: "rgba(249,115,22,0.12)"  },
-  closed:           { label: "Closed",          color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
+  draft:            { label: "Draft",            color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
+  pending_approval: { label: "Pending Approval", color: "#F59E0B", bg: "rgba(245,158,11,0.12)"  },
+  approved:         { label: "Approved",         color: "#00AE5E", bg: "rgba(0,174,94,0.12)"    },
+  rejected:         { label: "Rejected",         color: "#F52F34", bg: "rgba(245,47,52,0.12)"   },
+  ordered:          { label: "Ordered",          color: "#006FBA", bg: "rgba(0,111,186,0.12)"   },
+  advance_paid:     { label: "Advance Paid",     color: "#00BDCD", bg: "rgba(0,189,205,0.12)"   },
+  received:         { label: "Received",         color: "#00AE5E", bg: "rgba(0,174,94,0.12)"    },
+  invoice_uploaded: { label: "Invoice Uploaded", color: "#F59E0B", bg: "rgba(245,158,11,0.12)"  },
+  partially_paid:   { label: "Partially Paid",   color: "#F97316", bg: "rgba(249,115,22,0.12)"  },
+  closed:           { label: "Closed",           color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
 };
 
 export const INVOICE_STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bg: string }> = {
-  pending:       { label: "Pending",        color: "#4F46E5", bg: "rgba(79,70,229,0.12)"   },
-  partially_paid:{ label: "Partial",        color: "#F97316", bg: "rgba(249,115,22,0.12)"  },
-  paid:          { label: "Paid",           color: "#10B981", bg: "rgba(16,185,129,0.12)"  },
-  overdue:       { label: "Overdue",        color: "#EF4444", bg: "rgba(239,68,68,0.12)"   },
+  pending:       { label: "Pending",  color: "#006FBA", bg: "rgba(0,111,186,0.12)"  },
+  partially_paid:{ label: "Partial",  color: "#F97316", bg: "rgba(249,115,22,0.12)" },
+  paid:          { label: "Paid",     color: "#00AE5E", bg: "rgba(0,174,94,0.12)"   },
+  overdue:       { label: "Overdue",  color: "#F52F34", bg: "rgba(245,47,52,0.12)"  },
 };
 
 

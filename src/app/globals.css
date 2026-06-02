@@ -1,82 +1,96 @@
 @import "tailwindcss";
 
-/* ─── Light Mode Tokens ─────────────────────────────────────────── */
+/* ─── Brand palette
+   Primary:   #006FBA  (blue)
+   Secondary: #00BDCD  (teal / cyan)
+   Success:   #00AE5E  (green — approved / go-ahead)
+   Danger:    #F52F34  (red — overdue / rejected)
+   Gradient:  #006FBA → #00BDCD  (logo blue-to-teal)
+──────────────────────────────────────────────────── */
+
+/* ─── Light Mode Tokens ─────────────────────────── */
 :root {
-  --bg:            #F0F1FF;
+  --bg:            #EDF5FB;
   --surface:       #FFFFFF;
-  --surface-2:     #F3F4FF;
-  --sidebar:       #0F1368;   /* always-dark navy indigo — never white */
-  --border:        #E4E5F4;
-  --border-strong: #C8CAE8;
+  --surface-2:     #F0F8FC;
+  --sidebar:       #00305A;   /* dark brand blue — always dark */
+  --border:        #C4DCEC;
+  --border-strong: #90BDD8;
 
-  --text-1:  #1A1756;
-  --text-2:  #5552A0;
-  --text-3:  #9391B8;
+  --text-1:  #0A2540;
+  --text-2:  #1C5680;
+  --text-3:  #6899B5;
 
-  --primary:       #4F46E5;
-  --primary-h:     #4338CA;
-  --primary-light: #EEF0FF;
+  --primary:       #006FBA;
+  --primary-h:     #005E9E;
+  --primary-light: #E3F2FB;
 
-  --success:    #10B981;
-  --success-bg: #ECFDF5;
+  --secondary:     #00BDCD;
+  --secondary-bg:  #E0F9FB;
+
+  --success:    #00AE5E;
+  --success-bg: #E4F8EE;
   --warning:    #F59E0B;
   --warning-bg: #FFFBEB;
-  --danger:     #EF4444;
-  --danger-bg:  #FEF2F2;
+  --danger:     #F52F34;
+  --danger-bg:  #FEF0F0;
   --purple:     #7C3AED;
   --purple-bg:  #F5F3FF;
   --orange:     #F97316;
   --orange-bg:  #FFF7ED;
 
-  --card-shadow:       0 1px 4px rgba(79,70,229,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --card-shadow-hover: 0 6px 24px rgba(79,70,229,0.14), 0 2px 8px rgba(0,0,0,0.07);
-  --modal-shadow:      0 24px 80px rgba(79,70,229,0.22), 0 10px 30px rgba(0,0,0,0.14);
+  --card-shadow:       0 1px 4px rgba(0,111,186,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 6px 24px rgba(0,111,186,0.16), 0 2px 8px rgba(0,0,0,0.07);
+  --modal-shadow:      0 24px 80px rgba(0,48,90,0.22), 0 10px 30px rgba(0,0,0,0.14);
 }
 
-/* ─── Dark Mode Tokens  (Precoro-style rich deep navy) ──────────── */
+/* ─── Dark Mode Tokens ──────────────────────────── */
 html.dark {
-  --bg:            #0C0F5E;   /* deep indigo navy — like Precoro */
-  --surface:       #12178A;   /* card bg — clearly elevated */
-  --surface-2:     #191FAA;   /* hover / secondary surface */
-  --sidebar:       #090B52;   /* sidebar — deepest layer */
-  --border:        #2532CC;   /* visible indigo border */
-  --border-strong: #3040D8;
+  --bg:            #001525;
+  --surface:       #001E35;
+  --surface-2:     #002A4A;
+  --sidebar:       #000E1C;
+  --border:        #003A60;
+  --border-strong: #004E80;
 
-  --text-1:  #EEF0FF;
-  --text-2:  #9298FF;
-  --text-3:  #4A52B8;
+  --text-1:  #E4F2FB;
+  --text-2:  #78B9E5;
+  --text-3:  #3D7A9E;
 
-  --primary:       #7280FF;   /* brighter so it pops on navy */
-  --primary-h:     #8B96FF;
-  --primary-light: #1C26B8;
+  --primary:       #00A0F0;
+  --primary-h:     #00B8FF;
+  --primary-light: #001E3C;
 
-  --success:    #34D399;
-  --success-bg: rgba(52,211,153,0.16);
+  --secondary:     #00D4E5;
+  --secondary-bg:  rgba(0,212,229,0.16);
+
+  --success:    #00D977;
+  --success-bg: rgba(0,217,119,0.16);
   --warning:    #FBBF24;
   --warning-bg: rgba(251,191,36,0.16);
-  --danger:     #F87171;
-  --danger-bg:  rgba(248,113,113,0.16);
+  --danger:     #FF4449;
+  --danger-bg:  rgba(255,68,73,0.16);
   --purple:     #B39DFF;
   --purple-bg:  rgba(179,157,255,0.18);
   --orange:     #FB923C;
   --orange-bg:  rgba(251,146,60,0.16);
 
-  --card-shadow:       0 2px 10px rgba(0,0,60,0.50), 0 1px 3px rgba(0,0,0,0.30);
-  --card-shadow-hover: 0 8px 32px rgba(99,102,241,0.40), 0 3px 12px rgba(0,0,0,0.45);
-  --modal-shadow:      0 28px 90px rgba(0,0,60,0.65), 0 12px 36px rgba(0,0,0,0.50);
+  --card-shadow:       0 2px 10px rgba(0,0,40,0.50), 0 1px 3px rgba(0,0,0,0.30);
+  --card-shadow-hover: 0 8px 32px rgba(0,160,240,0.30), 0 3px 12px rgba(0,0,0,0.45);
+  --modal-shadow:      0 28px 90px rgba(0,21,37,0.65), 0 12px 36px rgba(0,0,0,0.50);
 }
 
-/* ─── Utility Classes ───────────────────────────────────────────── */
-.bg-base       { background-color: var(--bg); }
-.bg-surface    { background-color: var(--surface); }
-.bg-surface-2  { background-color: var(--surface-2); }
-.bg-sidebar    { background-color: var(--sidebar); }
-.bg-primary    { background-color: var(--primary); }
+/* ─── Utility Classes ───────────────────────────── */
+.bg-base          { background-color: var(--bg); }
+.bg-surface       { background-color: var(--surface); }
+.bg-surface-2     { background-color: var(--surface-2); }
+.bg-sidebar       { background-color: var(--sidebar); }
+.bg-primary       { background-color: var(--primary); }
 .bg-primary-light { background-color: var(--primary-light); }
 
-.text-1  { color: var(--text-1); }
-.text-2  { color: var(--text-2); }
-.text-3  { color: var(--text-3); }
+.text-1       { color: var(--text-1); }
+.text-2       { color: var(--text-2); }
+.text-3       { color: var(--text-3); }
 .text-primary { color: var(--primary); }
 
 .border-base   { border-color: var(--border); }
@@ -92,21 +106,21 @@ html.dark {
   box-shadow: var(--card-shadow-hover);
 }
 
-/* ─── Gradient utilities ────────────────────────────────────────── */
+/* ─── Gradient utilities (blue → teal, logo palette) */
 .gradient-primary {
-  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #006FBA 0%, #00BDCD 100%);
 }
 .gradient-text {
-  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #006FBA 0%, #00BDCD 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .gradient-surface {
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--purple-bg) 100%);
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-bg) 100%);
 }
 
-/* ─── Status badge classes ──────────────────────────────────────── */
+/* ─── Status badge classes ──────────────────────── */
 .badge-success { color: var(--success); background-color: var(--success-bg); }
 .badge-warning { color: var(--warning); background-color: var(--warning-bg); }
 .badge-danger  { color: var(--danger);  background-color: var(--danger-bg); }
@@ -115,7 +129,7 @@ html.dark {
 .badge-orange  { color: var(--orange);  background-color: var(--orange-bg); }
 .badge-muted   { color: var(--text-3);  background-color: var(--surface-2); }
 
-/* ─── Global reset & base ───────────────────────────────────────── */
+/* ─── Global reset & base ───────────────────────── */
 * { box-sizing: border-box; }
 
 html {
@@ -131,22 +145,22 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────────── */
+/* ─── Scrollbar ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
 
-/* ─── Selection ─────────────────────────────────────────────────── */
-::selection { background: rgba(99,102,241,0.2); color: var(--primary); }
+/* ─── Selection ─────────────────────────────────── */
+::selection { background: rgba(0,111,186,0.2); color: var(--primary); }
 
-/* ─── Focus ─────────────────────────────────────────────────────── */
+/* ─── Focus ─────────────────────────────────────── */
 *:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
-/* ─── Animations ────────────────────────────────────────────────── */
+/* ─── Animations ────────────────────────────────── */
 @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes spin    { to { transform: rotate(360deg); } }
@@ -154,7 +168,7 @@ body {
 .anim-fade  { animation: fadeIn  0.25s ease-out; }
 .anim-slide { animation: slideUp 0.3s  ease-out; }
 
-/* ─── Input / Select base ───────────────────────────────────────── */
+/* ─── Input / Select base ───────────────────────── */
 .field {
   width: 100%;
   padding: 10px 14px;
@@ -169,22 +183,22 @@ body {
 .field::placeholder { color: var(--text-3); }
 .field:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  box-shadow: 0 0 0 3px rgba(0,111,186,0.15);
 }
 
-/* ─── Btn ───────────────────────────────────────────────────────── */
+/* ─── Buttons ───────────────────────────────────── */
 .btn-primary {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 9px 16px;
   font-size: 13px; font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #006FBA 0%, #00BDCD 100%);
   border-radius: 10px;
   border: none; cursor: pointer;
   transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
-  box-shadow: 0 2px 12px rgba(79,70,229,0.35);
+  box-shadow: 0 2px 12px rgba(0,111,186,0.35);
 }
-.btn-primary:hover  { opacity: 0.92; box-shadow: 0 4px 20px rgba(79,70,229,0.5); }
+.btn-primary:hover  { opacity: 0.92; box-shadow: 0 4px 20px rgba(0,111,186,0.50); }
 .btn-primary:active { transform: scale(0.98); }
 .btn-primary:disabled { opacity: 0.45; pointer-events: none; box-shadow: none; }
 
@@ -200,7 +214,7 @@ body {
 }
 .btn-ghost:hover { background-color: var(--primary-light); color: var(--primary); border-color: var(--primary); }
 
-/* ─── Table ─────────────────────────────────────────────────────── */
+/* ─── Table ─────────────────────────────────────── */
 .tbl-head {
   font-size: 11px; font-weight: 600; text-transform: uppercase;
   letter-spacing: 0.06em; color: var(--text-3);
@@ -214,7 +228,7 @@ body {
 .tbl-row:last-child { border-bottom: none; }
 .tbl-row:hover { background-color: var(--surface-2); }
 
-/* ─── Sidebar nav — always renders on a dark background ────────── */
+/* ─── Sidebar nav — always on dark background ────── */
 .nav-item {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px; border-radius: 10px;
@@ -231,7 +245,7 @@ body {
   font-weight: 600;
 }
 
-/* ─── Step indicator ────────────────────────────────────────────── */
+/* ─── Step indicator ────────────────────────────── */
 .step-done    { background: var(--primary); border-color: var(--primary); }
 .step-active  { background: var(--surface); border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 .step-pending { background: var(--surface-2); border-color: var(--border); }

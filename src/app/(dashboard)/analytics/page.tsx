@@ -12,8 +12,8 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 const TEAM   = ["Prem","Yashwanth","Vikram"];
 
 const DEPT_COLORS: Record<Department, string> = {
-  event: "#FF9F0A", r_and_d: "#0071E3", embedded: "#AF52DE",
-  software: "#34C759", general_office: "#8E8E93",
+  event: "#FF9F0A", r_and_d: "#006FBA", embedded: "#00BDCD",
+  software: "#00AE5E", general_office: "#8E8E93",
 };
 
 /* Vertical bar chart — used for vendor & team tabs */
@@ -44,7 +44,7 @@ function VerticalBars({
           <div key={d.name} className="flex-1 flex flex-col items-center gap-1.5">
             <span className="text-[10px] font-bold" style={{ color: dark ? "rgba(255,255,255,0.7)" : "var(--text-2)" }}>{sharePct}%</span>
             <div className="w-full relative rounded-xl overflow-hidden" style={{ height: "120px", backgroundColor: dark ? "rgba(255,255,255,0.1)" : "var(--surface-2)" }}>
-              <div className="absolute bottom-0 left-0 right-0 rounded-xl" style={{ height: `${pct * 100}%`, background: "linear-gradient(180deg, #818CF8 0%, #4338CA 100%)" }} />
+              <div className="absolute bottom-0 left-0 right-0 rounded-xl" style={{ height: `${pct * 100}%`, background: "linear-gradient(180deg, #00BDCD 0%, #006FBA 100%)" }} />
             </div>
             <span className="text-[10.5px] text-center truncate w-full font-medium" style={{ color: dark ? "rgba(255,255,255,0.55)" : "var(--text-2)" }}>
               {d.name.split(" ")[0]}
@@ -84,7 +84,7 @@ function HorizontalPersonBars({ data }: { data: { name: string; amount: number; 
               </div>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--surface-2)" }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #818CF8 0%, #4F46E5 100%)" }} />
+              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #00BDCD 0%, #006FBA 100%)" }} />
             </div>
           </div>
         );
@@ -191,7 +191,7 @@ export default function AnalyticsPage() {
               <HorizontalPersonBars data={spendByPerson} />
             </div>
           ) : reportTab === "by_dept" ? (
-            <div className="rounded-b-2xl p-5" style={{ background: "linear-gradient(160deg, #0D1270 0%, #181DA0 100%)" }}>
+            <div className="rounded-b-2xl p-5" style={{ background: "linear-gradient(160deg, #001E3C 0%, #00437A 100%)" }}>
               {spendByDept.length > 0 ? (
                 <>
                   <div className="mb-4 flex items-center justify-between">
@@ -212,7 +212,7 @@ export default function AnalyticsPage() {
               )}
             </div>
           ) : (
-            <div className="rounded-b-2xl p-5" style={{ background: "linear-gradient(160deg, #0D1270 0%, #181DA0 100%)" }}>
+            <div className="rounded-b-2xl p-5" style={{ background: "linear-gradient(160deg, #001E3C 0%, #00437A 100%)" }}>
               <div className="mb-4">
                 <p className="text-[11px] font-semibold uppercase tracking-wide mb-1" style={{ color: "rgba(255,255,255,0.45)" }}>Top vendors by invoice value</p>
               </div>
@@ -291,15 +291,15 @@ export default function AnalyticsPage() {
                     <AreaChart data={spendByMonth}>
                       <defs>
                         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%"  stopColor="#4F46E5" stopOpacity={0.15} />
-                          <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
+                          <stop offset="5%"  stopColor="#006FBA" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="#006FBA" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                       <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--text-3)" }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 10, fill: "var(--text-3)" }} axisLine={false} tickLine={false} tickFormatter={v => `₹${(v/100000).toFixed(0)}L`} />
                       <Tooltip contentStyle={{ backgroundColor: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, color: "var(--text-1)" }} formatter={(v) => [formatCurrency(Number(v)), "Spend"]} />
-                      <Area type="monotone" dataKey="amount" stroke="#4F46E5" strokeWidth={2.5} fill="url(#areaGrad)" dot={{ fill: "#4F46E5", r: 3 }} activeDot={{ r: 5 }} />
+                      <Area type="monotone" dataKey="amount" stroke="#006FBA" strokeWidth={2.5} fill="url(#areaGrad)" dot={{ fill: "#006FBA", r: 3 }} activeDot={{ r: 5 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </>
