@@ -1,25 +1,36 @@
 "use client";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { USERS } from "@/lib/mock-data";
 import type { User } from "@/types";
 
-/* The 3 users you can switch between in this demo */
-const SWITCHABLE_IDS = ["u4", "u3", "u1"]; // Prem (requester), Jigar (finance), Alok (management)
-
 interface UserContextType {
   currentUser: User;
-  setCurrentUser: (u: User) => void;
-  switchableUsers: User[];
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
+/* Read app_user cookie (non-httpOnly) → find matching user */
+function resolveUser(): User {
+  if (typeof window === "undefined") return USERS[0]; // SSR fallback
+  const match = document.cookie.match(/(?:^|;\s*)app_user=([^;]*)/);
+  if (match) {
+    const email = decodeURIComponent(match[1]).toLowerCase();
+    const user  = USERS.find(u => u.email.toLowerCase() === email);
+    if (user) return user;
+  }
+  return USERS[0]; // fallback: first user
+}
+
 export function UserProvider({ children }: { children: ReactNode }) {
-  const switchableUsers = SWITCHABLE_IDS.map(id => USERS.find(u => u.id === id)!).filter(Boolean);
-  const [currentUser, setCurrentUser] = useState<User>(switchableUsers[0]); // default: Prem
+  const [currentUser, setCurrentUser] = useState<User>(USERS[0]);
+
+  /* After mount, read the cookie and set the real user */
+  useEffect(() => {
+    setCurrentUser(resolveUser());
+  }, []);
 
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, switchableUsers }}>
+    <UserContext.Provider value={{ currentUser }}>
       {children}
     </UserContext.Provider>
   );

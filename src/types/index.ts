@@ -20,7 +20,7 @@ export type DeliveryStatus = "pending" | "partial" | "received" | "rejected";
 
 export type PaymentMode = "neft" | "imps" | "upi" | "cash" | "cheque";
 
-export type Location = "mumbai" | "bengaluru" | "delhi";
+export type Location = string; /* open string — team spans multiple cities */
 
 export interface User {
   id: string;
@@ -28,7 +28,7 @@ export interface User {
   email: string;
   phone?: string;
   role: UserRole;
-  location: Location;
+  location?: Location;
   avatar?: string;
 }
 

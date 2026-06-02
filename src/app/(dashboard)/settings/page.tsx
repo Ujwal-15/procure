@@ -114,7 +114,7 @@ export default function SettingsPage() {
                     className="text-[11px] capitalize px-2 py-0.5 rounded-md"
                     style={{ color: "var(--text-3)", backgroundColor: "var(--surface-2)" }}
                   >
-                    {LOCATION_LABELS[user.location] ?? user.location}
+                    {user.location ? (LOCATION_LABELS[user.location] ?? user.location) : "—"}
                   </span>
                   <span
                     className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
