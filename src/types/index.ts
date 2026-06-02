@@ -22,8 +22,6 @@ export type PaymentMode = "neft" | "imps" | "upi" | "cash" | "cheque";
 
 export type Location = "mumbai" | "bengaluru" | "delhi";
 
-export type Urgency = "low" | "medium" | "high" | "critical";
-
 export interface User {
   id: string;
   name: string;
@@ -77,14 +75,12 @@ export interface ProcurementRequest {
   requestNumber: string;
   requesterId: string;
   requesterName: string;
-  eventId?: string;
   eventName?: string;
   department: Department;
   category: "event" | "general" | "r_and_d";
   items: RequestItem[];
   estimatedTotal: number;
   advancePaid?: number;
-  urgency: Urgency;
   notes?: string;
   status: RequestStatus;
   rejectionReason?: string;
@@ -155,7 +151,6 @@ export interface Approval {
   items: RequestItem[];
   estimatedTotal: number;
   advancePaid?: number;
-  urgency: Urgency;
   approverId?: string;
   status: "pending" | "approved" | "rejected";
   notes?: string;

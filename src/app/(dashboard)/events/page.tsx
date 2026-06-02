@@ -21,7 +21,7 @@ export default function EventsPage() {
 
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {EVENTS.map(event => {
-          const eventRequests = REQUESTS.filter(r => r.eventId === event.id);
+          const eventRequests = REQUESTS.filter(r => r.eventName === event.name);
           const eventInvoices = INVOICES.filter(i => i.eventName === event.name);
           const totalSpent = eventInvoices.reduce((s, i) => s + i.grossAmount, 0);
           const pending = eventInvoices.filter(i => i.status !== "paid").reduce((s, i) => s + i.balanceDue, 0);

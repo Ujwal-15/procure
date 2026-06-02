@@ -4,7 +4,8 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import { REQUESTS } from "@/lib/mock-data";
-import { formatCurrency, formatDate, STATUS_CONFIG, URGENCY_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
+import { formatCurrency, formatDate, STATUS_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
+import { useCurrentUser } from "@/contexts/UserContext";
 import type { RequestStatus } from "@/types";
 
 const STATUS_TABS: { label: string; value: RequestStatus | "all" }[] = [
@@ -28,20 +29,22 @@ function getStageIndex(status: RequestStatus): number {
 }
 
 export default function ProcurementPage() {
+  const { currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<RequestStatus | "all">("all");
-  const filtered = activeTab === "all" ? REQUESTS : REQUESTS.filter(r => r.status === activeTab);
-  const pendingCount = REQUESTS.filter(r => r.status === "pending_approval").length;
+
+  const filtered      = activeTab === "all" ? REQUESTS : REQUESTS.filter(r => r.status === activeTab);
+  const pendingCount  = REQUESTS.filter(r => r.status === "pending_approval").length;
+  const canRaise      = currentUser.role === "requester";
 
   return (
     <div className="anim-fade">
       <Header
         title="Procurement Requests"
-        subtitle={REQUESTS.length > 0 ? `${REQUESTS.length} requests` : "No requests yet"}
-        action={{ label: "New Request", href: "/procurement/new" }}
+        subtitle={`${REQUESTS.length} requests`}
+        action={canRaise ? { label: "New Request", href: "/procurement/new" } : undefined}
       />
       <div className="p-6 space-y-4">
         <div className="card p-0 overflow-hidden">
-          {/* Tab bar */}
           <div className="flex items-center gap-0.5 px-4 pt-3 border-b overflow-x-auto" style={{ borderColor: "var(--border)" }}>
             {STATUS_TABS.map(tab => (
               <button
@@ -65,43 +68,28 @@ export default function ProcurementPage() {
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <p className="text-[14px] font-semibold text-1">No requests here</p>
-              <p className="text-[13px]" style={{ color: "var(--text-3)" }}>
-                {activeTab === "all" ? "Raise your first procurement request to get started." : "Nothing in this status yet."}
-              </p>
-              {activeTab === "all" && (
-                <Link href="/procurement/new" className="btn-primary mt-2">New Request</Link>
-              )}
+              <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Nothing in this status yet.</p>
             </div>
           ) : (
             <>
-              {/* Table header */}
               <div className="tbl-head grid grid-cols-[2fr_1fr_1fr_160px] gap-4 px-5 py-2.5">
                 {["Request", "Dept / Event", "Amount", "Pipeline"].map(h => <span key={h}>{h}</span>)}
               </div>
-
-              {/* Rows */}
               <div>
                 {filtered.map(req => {
-                  const statusCfg = STATUS_CONFIG[req.status];
-                  const urgCfg = URGENCY_CONFIG[req.urgency];
-                  const deptColor = DEPARTMENT_COLORS[req.department];
-                  const stageIdx = getStageIndex(req.status);
-                  const balancePending = req.advancePaid
-                    ? Math.max(0, req.estimatedTotal - req.advancePaid)
-                    : null;
+                  const statusCfg    = STATUS_CONFIG[req.status];
+                  const deptColor    = DEPARTMENT_COLORS[req.department];
+                  const stageIdx     = getStageIndex(req.status);
+                  const advancePaid  = req.advancePaid ?? 0;
+                  const balance      = Math.max(0, req.estimatedTotal - advancePaid);
 
                   return (
                     <Link key={req.id} href={`/procurement/${req.id}`}
                       className="tbl-row grid grid-cols-[2fr_1fr_1fr_160px] gap-4 items-center px-5 py-3.5"
                     >
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[11px] font-semibold font-mono" style={{ color: "var(--text-3)" }}>{req.requestNumber}</span>
-                          {(req.urgency === "critical" || req.urgency === "high") && (
-                            <Badge label={urgCfg.label} color={urgCfg.color} bg={urgCfg.bg} size="sm" />
-                          )}
-                        </div>
-                        <p className="text-[13px] font-semibold text-1 truncate">{req.items.map(i => i.name).join(", ")}</p>
+                        <span className="text-[11px] font-semibold font-mono" style={{ color: "var(--text-3)" }}>{req.requestNumber}</span>
+                        <p className="text-[13px] font-semibold text-1 truncate mt-0.5">{req.items.map(i => i.name).join(", ")}</p>
                         <p className="text-[11.5px] mt-0.5" style={{ color: "var(--text-3)" }}>
                           By {req.requesterName} · {formatDate(req.createdAt)}
                         </p>
@@ -114,9 +102,9 @@ export default function ProcurementPage() {
                       </div>
                       <div>
                         <p className="text-[13px] font-semibold text-1">{formatCurrency(req.estimatedTotal)}</p>
-                        {req.advancePaid && req.advancePaid > 0 ? (
+                        {advancePaid > 0 ? (
                           <p className="text-[11px] mt-0.5" style={{ color: "var(--text-3)" }}>
-                            Adv. {formatCurrency(req.advancePaid)} · Bal. {formatCurrency(balancePending!)}
+                            Adv. {formatCurrency(advancePaid)} · Bal. {formatCurrency(balance)}
                           </p>
                         ) : (
                           <div className="mt-1">
@@ -128,15 +116,9 @@ export default function ProcurementPage() {
                       <div className="flex items-center gap-0.5">
                         {STAGE_STEPS.map((step, i) => (
                           <div key={step} className="flex items-center gap-0.5">
-                            <div
-                              className="w-2 h-2 rounded-full transition-colors"
-                              style={{ backgroundColor: i <= stageIdx ? "var(--primary)" : "var(--border)" }}
-                            />
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: i <= stageIdx ? "var(--primary)" : "var(--border)" }} />
                             {i < STAGE_STEPS.length - 1 && (
-                              <div
-                                className="h-0.5 w-4 transition-colors"
-                                style={{ backgroundColor: i < stageIdx ? "var(--primary)" : "var(--border)" }}
-                              />
+                              <div className="h-0.5 w-4" style={{ backgroundColor: i < stageIdx ? "var(--primary)" : "var(--border)" }} />
                             )}
                           </div>
                         ))}

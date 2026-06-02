@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { Department, RequestStatus, InvoiceStatus, Urgency, UserRole } from "@/types";
+import type { Department, RequestStatus, InvoiceStatus, UserRole } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -79,12 +79,6 @@ export const INVOICE_STATUS_CONFIG: Record<InvoiceStatus, { label: string; color
   overdue:       { label: "Overdue",        color: "#EF4444", bg: "rgba(239,68,68,0.12)"   },
 };
 
-export const URGENCY_CONFIG: Record<Urgency, { label: string; color: string; bg: string }> = {
-  low:      { label: "Low",      color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
-  medium:   { label: "Medium",   color: "#4F46E5", bg: "rgba(79,70,229,0.12)"  },
-  high:     { label: "High",     color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
-  critical: { label: "Critical", color: "#EF4444", bg: "rgba(239,68,68,0.12)"  },
-};
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   requester: "Operations",

@@ -4,26 +4,28 @@ import { Plus, Trash2, ArrowLeft, Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
-import { EVENTS } from "@/lib/mock-data";
-import { DEPARTMENT_LABELS, formatCurrency } from "@/lib/utils";
-import type { Department, Urgency } from "@/types";
+import { formatCurrency } from "@/lib/utils";
+import { DEPARTMENT_LABELS } from "@/lib/utils";
+import { useCurrentUser } from "@/contexts/UserContext";
+import type { Department } from "@/types";
 
 interface Item { name: string; qty: number; unit: string; estimatedUnitPrice: number; }
 
 export default function NewRequestPage() {
   const router = useRouter();
-  const [department, setDepartment] = useState<Department>("event");
-  const [eventId, setEventId] = useState("");
-  const [urgency, setUrgency] = useState<Urgency>("medium");
-  const [notes, setNotes] = useState("");
-  const [advancePaid, setAdvancePaid] = useState<number>(0);
+  const { currentUser } = useCurrentUser();
+  const [department,  setDepartment]  = useState<Department>("event");
+  const [forEvent,    setForEvent]    = useState(false);
+  const [eventName,   setEventName]   = useState("");
+  const [notes,       setNotes]       = useState("");
+  const [advancePaid, setAdvancePaid] = useState(0);
   const [items, setItems] = useState<Item[]>([{ name: "", qty: 1, unit: "units", estimatedUnitPrice: 0 }]);
 
-  const total = items.reduce((s, i) => s + i.qty * i.estimatedUnitPrice, 0);
+  const total          = items.reduce((s, i) => s + i.qty * i.estimatedUnitPrice, 0);
   const balancePending = Math.max(0, total - advancePaid);
-  const needsApproval = total > 15000;
+  const needsApproval  = total > 15_000;
 
-  const addItem = () => setItems([...items, { name: "", qty: 1, unit: "units", estimatedUnitPrice: 0 }]);
+  const addItem    = () => setItems([...items, { name: "", qty: 1, unit: "units", estimatedUnitPrice: 0 }]);
   const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
   const updateItem = (idx: number, field: keyof Item, value: string | number) =>
     setItems(items.map((item, i) => i === idx ? { ...item, [field]: value } : item));
@@ -34,7 +36,24 @@ export default function NewRequestPage() {
   };
 
   const depts: Department[] = ["embedded", "r_and_d", "software", "event", "general_office"];
-  const urgencies: Urgency[] = ["low", "medium", "high", "critical"];
+
+  /* Only requesters can raise requests */
+  if (currentUser.role !== "requester") {
+    return (
+      <div className="anim-fade">
+        <Header title="New Request" />
+        <div className="p-6 max-w-2xl mx-auto">
+          <div className="card p-8 flex flex-col items-center text-center gap-3">
+            <p className="text-[15px] font-semibold text-1">Access restricted</p>
+            <p className="text-[13px]" style={{ color: "var(--text-3)" }}>
+              Only operations staff (Prem, Yashwanth, Vikram) can raise procurement requests.
+            </p>
+            <Link href="/procurement" className="btn-ghost mt-2">Back to list</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="anim-fade">
@@ -48,31 +67,43 @@ export default function NewRequestPage() {
           {/* Request details */}
           <div className="card p-5">
             <h2 className="text-[14px] font-semibold text-1 mb-4">Request Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[12px] font-medium text-1 mb-1.5">Department <span style={{ color: "var(--danger)" }}>*</span></label>
-                <select value={department} onChange={e => setDepartment(e.target.value as Department)} className="field">
-                  {depts.map(d => <option key={d} value={d}>{DEPARTMENT_LABELS[d]}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[12px] font-medium text-1 mb-1.5">Urgency <span style={{ color: "var(--danger)" }}>*</span></label>
-                <select value={urgency} onChange={e => setUrgency(e.target.value as Urgency)} className="field">
-                  {urgencies.map(u => <option key={u} value={u}>{u.charAt(0).toUpperCase() + u.slice(1)}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="block text-[12px] font-medium text-1 mb-1.5">
-                Link to Event <span className="font-normal" style={{ color: "var(--text-3)" }}>(optional)</span>
-              </label>
-              <select value={eventId} onChange={e => setEventId(e.target.value)} className="field">
-                <option value="">No event — General purchase</option>
-                {EVENTS.filter(e => e.status !== "completed").map(ev => (
-                  <option key={ev.id} value={ev.id}>{ev.name}</option>
-                ))}
+
+            <div>
+              <label className="block text-[12px] font-medium text-1 mb-1.5">Department <span style={{ color: "var(--danger)" }}>*</span></label>
+              <select value={department} onChange={e => setDepartment(e.target.value as Department)} className="field">
+                {depts.map(d => <option key={d} value={d}>{DEPARTMENT_LABELS[d]}</option>)}
               </select>
             </div>
+
+            {/* Event toggle */}
+            <div className="mt-4">
+              <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                <div
+                  className="relative w-9 h-5 rounded-full transition-colors shrink-0"
+                  style={{ backgroundColor: forEvent ? "var(--primary)" : "var(--border)" }}
+                  onClick={() => { setForEvent(!forEvent); if (forEvent) setEventName(""); }}
+                >
+                  <div
+                    className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+                    style={{ transform: `translateX(${forEvent ? 16 : 2}px)` }}
+                  />
+                </div>
+                <span className="text-[13px] font-medium text-1">This is for an event</span>
+              </label>
+              {forEvent && (
+                <div className="mt-3">
+                  <input
+                    type="text"
+                    placeholder="e.g. Spectra, PWC Event, Paulo Alto…"
+                    value={eventName}
+                    onChange={e => setEventName(e.target.value)}
+                    className="field"
+                    autoFocus
+                  />
+                </div>
+              )}
+            </div>
+
             <div className="mt-4">
               <label className="block text-[12px] font-medium text-1 mb-1.5">
                 Notes <span className="font-normal" style={{ color: "var(--text-3)" }}>(optional)</span>
@@ -80,7 +111,7 @@ export default function NewRequestPage() {
               <textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                placeholder="Vendor preference, specifications, or any other context..."
+                placeholder="Vendor preference, specs, or any other context…"
                 rows={2}
                 className="field resize-none"
               />
@@ -112,54 +143,25 @@ export default function NewRequestPage() {
                     onChange={e => updateItem(idx, "name", e.target.value)}
                     className="field"
                   />
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.qty}
-                    onChange={e => updateItem(idx, "qty", parseInt(e.target.value) || 1)}
-                    className="field text-center"
-                  />
-                  <input
-                    type="text"
-                    placeholder="units"
-                    value={item.unit}
-                    onChange={e => updateItem(idx, "unit", e.target.value)}
-                    className="field"
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={item.estimatedUnitPrice || ""}
-                    onChange={e => updateItem(idx, "estimatedUnitPrice", parseFloat(e.target.value) || 0)}
-                    className="field"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeItem(idx)}
-                    disabled={items.length === 1}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-30 disabled:pointer-events-none"
-                    style={{ color: "var(--text-3)" }}
-                  >
+                  <input type="number" min="1" value={item.qty} onChange={e => updateItem(idx, "qty", parseInt(e.target.value) || 1)} className="field text-center" />
+                  <input type="text" placeholder="units" value={item.unit} onChange={e => updateItem(idx, "unit", e.target.value)} className="field" />
+                  <input type="number" min="0" placeholder="0" value={item.estimatedUnitPrice || ""} onChange={e => updateItem(idx, "estimatedUnitPrice", parseFloat(e.target.value) || 0)} className="field" />
+                  <button type="button" onClick={() => removeItem(idx)} disabled={items.length === 1} className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-30 disabled:pointer-events-none" style={{ color: "var(--text-3)" }}>
                     <Trash2 size={14} />
                   </button>
                 </div>
               ))}
             </div>
 
-            {/* Totals section */}
+            {/* Totals */}
             <div className="mt-5 pt-4 border-t space-y-3" style={{ borderColor: "var(--border)" }}>
-              {/* Total row */}
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-medium" style={{ color: "var(--text-3)" }}>Estimated Total</span>
                 <span className="text-[22px] font-bold gradient-text">₹{total.toLocaleString("en-IN")}</span>
               </div>
 
-              {/* Advance paid */}
               <div className="flex items-center justify-between gap-4">
-                <label className="text-[13px] font-medium shrink-0" style={{ color: "var(--text-2)" }}>
-                  Advance Paid (₹)
-                </label>
+                <label className="text-[13px] font-medium shrink-0" style={{ color: "var(--text-2)" }}>Advance Paid (₹)</label>
                 <input
                   type="number"
                   min="0"
@@ -171,12 +173,8 @@ export default function NewRequestPage() {
                 />
               </div>
 
-              {/* Balance pending — show when advance > 0 */}
               {advancePaid > 0 && (
-                <div
-                  className="flex items-center justify-between px-4 py-3 rounded-xl"
-                  style={{ backgroundColor: "var(--surface-2)" }}
-                >
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ backgroundColor: "var(--surface-2)" }}>
                   <span className="text-[13px] font-medium" style={{ color: "var(--text-2)" }}>Balance Pending</span>
                   <span className="text-[17px] font-bold" style={{ color: balancePending === 0 ? "var(--success)" : "var(--text-1)" }}>
                     {formatCurrency(balancePending)}
@@ -193,18 +191,17 @@ export default function NewRequestPage() {
               <div>
                 <p className="text-[13px] font-semibold" style={{ color: "var(--warning)" }}>Approval required</p>
                 <p className="text-[12px] mt-0.5" style={{ color: "var(--warning)", opacity: 0.8 }}>
-                  Requests above ₹15,000 go to Finance (Jigar) then Alok or Sanjeev for final sign-off.
+                  Requests above ₹15,000 go to Jigar (Finance review) then Alok / Sanjeev for final sign-off.
                 </p>
               </div>
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-3">
             <Link href="/procurement" className="btn-ghost flex-1 justify-center">Cancel</Link>
             <button
               type="submit"
-              disabled={items.some(i => !i.name) || total === 0}
+              disabled={items.some(i => !i.name) || total === 0 || (forEvent && !eventName.trim())}
               className="btn-primary flex-1 justify-center"
             >
               {needsApproval ? "Submit for Approval" : "Submit Request"}

@@ -5,10 +5,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import { REQUESTS } from "@/lib/mock-data";
-import {
-  formatCurrency, formatDate, STATUS_CONFIG, URGENCY_CONFIG,
-  DEPARTMENT_LABELS, DEPARTMENT_COLORS,
-} from "@/lib/utils";
+import { formatCurrency, formatDate, STATUS_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
 
 const TIMELINE_STEPS = [
   { key: "pending_approval",  label: "Submitted",        desc: "Request raised and submitted"    },
@@ -27,26 +24,23 @@ const STATUS_ORDER = [
 
 export default function ProcurementDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const req = REQUESTS.find(r => r.id === id) || REQUESTS[0];
+  const req = REQUESTS.find(r => r.id === id);
 
   if (!req) {
     return (
-      <div className="anim-fade">
-        <Header title="Request Not Found" />
-        <div className="p-6">
-          <Link href="/procurement" className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors" style={{ color: "var(--text-3)" }}>
-            <ArrowLeft size={14} /> Back to requests
-          </Link>
-        </div>
+      <div className="anim-fade p-6">
+        <Link href="/procurement" className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors" style={{ color: "var(--text-3)" }}>
+          <ArrowLeft size={14} /> Back
+        </Link>
+        <p className="text-[14px] font-semibold text-1 mt-6">Request not found</p>
       </div>
     );
   }
 
-  const statusIndex = STATUS_ORDER.indexOf(req.status);
-  const deptColor = DEPARTMENT_COLORS[req.department];
-  const statusCfg = STATUS_CONFIG[req.status];
-  const urgCfg = URGENCY_CONFIG[req.urgency];
-  const advancePaid = req.advancePaid ?? 0;
+  const statusIndex    = STATUS_ORDER.indexOf(req.status);
+  const deptColor      = DEPARTMENT_COLORS[req.department];
+  const statusCfg      = STATUS_CONFIG[req.status];
+  const advancePaid    = req.advancePaid ?? 0;
   const balancePending = Math.max(0, req.estimatedTotal - advancePaid);
 
   const getStepStatus = (stepKey: string) => {
@@ -71,7 +65,6 @@ export default function ProcurementDetailPage({ params }: { params: Promise<{ id
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <Badge label={DEPARTMENT_LABELS[req.department]} color={deptColor.text} bg={deptColor.bg} size="sm" />
-                <Badge label={urgCfg.label} color={urgCfg.color} bg={urgCfg.bg} size="sm" />
                 <Badge label={statusCfg.label} color={statusCfg.color} bg={statusCfg.bg} size="sm" dot />
               </div>
               <h2 className="text-[18px] font-semibold text-1 leading-snug">
@@ -104,7 +97,7 @@ export default function ProcurementDetailPage({ params }: { params: Promise<{ id
         {/* Items */}
         <div className="card p-5">
           <h3 className="text-[14px] font-semibold text-1 mb-4">Items</h3>
-          <div className="tbl-head grid grid-cols-[2fr_80px_120px_120px] gap-3 px-0 py-2 mb-0" style={{ borderRadius: 0, borderLeft: "none", borderRight: "none", boxShadow: "none" }}>
+          <div className="tbl-head grid grid-cols-[2fr_80px_120px_120px] gap-3 px-0 py-2" style={{ borderRadius: 0, borderLeft: "none", borderRight: "none", boxShadow: "none" }}>
             {["Item", "Qty", "Unit Price", "Total"].map(h => <span key={h}>{h}</span>)}
           </div>
           {req.items.map((item, i) => (
@@ -116,7 +109,6 @@ export default function ProcurementDetailPage({ params }: { params: Promise<{ id
             </div>
           ))}
 
-          {/* Amount summary */}
           <div className="mt-4 pt-4 border-t space-y-2" style={{ borderColor: "var(--border)" }}>
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-medium" style={{ color: "var(--text-3)" }}>Estimated Total</span>
@@ -128,10 +120,7 @@ export default function ProcurementDetailPage({ params }: { params: Promise<{ id
                   <span className="text-[13px] font-medium" style={{ color: "var(--text-3)" }}>Advance Paid</span>
                   <span className="text-[14px] font-semibold" style={{ color: "var(--success)" }}>− {formatCurrency(advancePaid)}</span>
                 </div>
-                <div
-                  className="flex items-center justify-between px-4 py-3 rounded-xl"
-                  style={{ backgroundColor: "var(--surface-2)" }}
-                >
+                <div className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ backgroundColor: "var(--surface-2)" }}>
                   <span className="text-[13px] font-semibold text-1">Balance Pending</span>
                   <span className="text-[17px] font-bold" style={{ color: balancePending === 0 ? "var(--success)" : "var(--text-1)" }}>
                     {formatCurrency(balancePending)}
@@ -142,44 +131,35 @@ export default function ProcurementDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        {/* Timeline */}
+        {/* Pipeline */}
         <div className="card p-5">
           <h3 className="text-[14px] font-semibold text-1 mb-5">Pipeline</h3>
-          <div>
-            {TIMELINE_STEPS.map((step, i) => {
-              const stepStatus = getStepStatus(step.key);
-              const isLast = i === TIMELINE_STEPS.length - 1;
-              return (
-                <div key={step.key} className="flex items-start gap-3">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
-                        stepStatus === "done" ? "step-done" : stepStatus === "active" ? "step-active" : "step-pending"
-                      }`}
-                    >
-                      {stepStatus === "done" && <CheckCircle2 size={12} className="text-white" />}
-                      {stepStatus === "active" && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--primary)" }} />}
-                    </div>
-                    {!isLast && (
-                      <div className={`w-0.5 h-8 mt-1 transition-colors ${stepStatus === "done" ? "step-line-done" : "step-line-pending"}`} />
-                    )}
+          {TIMELINE_STEPS.map((step, i) => {
+            const stepStatus = getStepStatus(step.key);
+            const isLast = i === TIMELINE_STEPS.length - 1;
+            return (
+              <div key={step.key} className="flex items-start gap-3">
+                <div className="flex flex-col items-center">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${stepStatus === "done" ? "step-done" : stepStatus === "active" ? "step-active" : "step-pending"}`}>
+                    {stepStatus === "done" && <CheckCircle2 size={12} className="text-white" />}
+                    {stepStatus === "active" && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--primary)" }} />}
                   </div>
-                  <div className="pb-4">
-                    <p
-                      className="text-[13px] font-semibold leading-none mt-1"
-                      style={{ color: stepStatus === "active" ? "var(--primary)" : stepStatus === "done" ? "var(--text-2)" : "var(--text-3)" }}
-                    >
-                      {step.label}
-                      {stepStatus === "active" && (
-                        <span className="ml-2 text-[10px] font-bold text-white px-2 py-0.5 rounded-full gradient-primary">Current</span>
-                      )}
-                    </p>
-                    <p className="text-[12px] mt-0.5" style={{ color: "var(--text-3)" }}>{step.desc}</p>
-                  </div>
+                  {!isLast && <div className={`w-0.5 h-8 mt-1 ${stepStatus === "done" ? "step-line-done" : "step-line-pending"}`} />}
                 </div>
-              );
-            })}
-          </div>
+                <div className="pb-4">
+                  <p className="text-[13px] font-semibold leading-none mt-1"
+                    style={{ color: stepStatus === "active" ? "var(--primary)" : stepStatus === "done" ? "var(--text-2)" : "var(--text-3)" }}
+                  >
+                    {step.label}
+                    {stepStatus === "active" && (
+                      <span className="ml-2 text-[10px] font-bold text-white px-2 py-0.5 rounded-full gradient-primary">Current</span>
+                    )}
+                  </p>
+                  <p className="text-[12px] mt-0.5" style={{ color: "var(--text-3)" }}>{step.desc}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {req.notes && (

@@ -1,8 +1,9 @@
 "use client";
 import { useState, useRef } from "react";
-import { AlertTriangle, Upload, CheckCircle2, FileText, X, CloudUpload, DollarSign } from "lucide-react";
+import { AlertTriangle, Upload, CheckCircle2, FileText, X, CloudUpload, DollarSign, Lock } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
+import { useCurrentUser } from "@/contexts/UserContext";
 import { INVOICES, VENDORS } from "@/lib/mock-data";
 import { formatCurrency, formatDate, getDaysOverdue, getDaysUntilDue, INVOICE_STATUS_CONFIG, DEPARTMENT_LABELS } from "@/lib/utils";
 import type { InvoiceStatus } from "@/types";
@@ -16,6 +17,8 @@ const STATUS_TABS: { label: string; value: InvoiceStatus | "all" }[] = [
 ];
 
 export default function InvoicesPage() {
+  const { currentUser } = useCurrentUser();
+  const canMarkPaid = currentUser.role === "finance";
   const [activeTab,    setActiveTab]    = useState<InvoiceStatus | "all">("all");
   const [showMarkPaid, setShowMarkPaid] = useState<string | null>(null);
   const [showUpload,   setShowUpload]   = useState(false);
@@ -155,7 +158,11 @@ export default function InvoicesPage() {
                       </div>
                       <Badge label={cfg.label} color={cfg.color} bg={cfg.bg} size="sm" dot />
                       <div>
-                        {inv.status !== "paid" ? (
+                        {inv.status === "paid" ? (
+                          <span className="text-[11.5px] font-semibold flex items-center gap-1" style={{ color: "var(--success)" }}>
+                            <CheckCircle2 size={12} /> Paid
+                          </span>
+                        ) : canMarkPaid ? (
                           <button
                             onClick={() => setShowMarkPaid(inv.id)}
                             className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold text-white rounded-lg transition-opacity hover:opacity-90"
@@ -164,8 +171,8 @@ export default function InvoicesPage() {
                             <CheckCircle2 size={12} /> Mark Paid
                           </button>
                         ) : (
-                          <span className="text-[11.5px] font-semibold flex items-center gap-1" style={{ color: "var(--success)" }}>
-                            <CheckCircle2 size={12} /> Paid
+                          <span className="flex items-center gap-1 text-[11px]" style={{ color: "var(--text-3)" }}>
+                            <Lock size={11} /> Finance only
                           </span>
                         )}
                       </div>
