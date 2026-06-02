@@ -1,11 +1,62 @@
 "use client";
 import { useState } from "react";
-import { CheckCircle2, XCircle, Clock, ChevronDown } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, ChevronRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import { APPROVALS } from "@/lib/mock-data";
 import { formatCurrency, formatDate, URGENCY_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
 import type { Approval } from "@/types";
+
+function ApprovalRuleBanner() {
+  return (
+    <div className="card p-5 mb-6">
+      {/* Rule */}
+      <div className="flex items-center gap-2 flex-wrap mb-5">
+        <span className="text-[13px] text-2">If</span>
+        <span className="text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ backgroundColor: "var(--primary-light)", color: "var(--primary)" }}>request</span>
+        <span className="text-[13px] text-3">exceeds</span>
+        <span className="text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ backgroundColor: "var(--warning-bg)", color: "var(--warning)" }}>₹15,000</span>
+        <span className="text-[13px] text-3">→ requires approval:</span>
+      </div>
+
+      {/* Approver chain */}
+      <div className="flex items-center gap-3">
+        {/* Finance */}
+        <div className="flex-1 flex items-center gap-3 p-3.5 rounded-xl border" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-2)" }}>
+          <div className="relative shrink-0">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)" }}>
+              <span className="text-white text-[12px] font-bold">JI</span>
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center border-2 border-white" style={{ backgroundColor: "var(--warning)" }}>
+              <Clock size={8} className="text-white" />
+            </div>
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold text-1">Jigar</p>
+            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Finance review</p>
+          </div>
+        </div>
+
+        {/* Connector */}
+        <div className="shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
+          <ChevronRight size={14} style={{ color: "var(--primary)" }} />
+        </div>
+
+        {/* Management */}
+        <div className="flex-1 flex items-center gap-3 p-3.5 rounded-xl border" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-2)" }}>
+          <div className="flex gap-1.5 shrink-0">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)" }}>AL</div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 text-[10px] font-bold" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)", color: "var(--text-2)" }}>SA</div>
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold text-1">Alok / Sanjeev</p>
+            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Final sign-off</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ApprovalsPage() {
   const [approvals, setApprovals] = useState<Approval[]>(APPROVALS);
@@ -15,9 +66,8 @@ export default function ApprovalsPage() {
   const pending = approvals.filter(a => a.status === "pending");
   const handled = approvals.filter(a => a.status !== "pending");
 
-  const handleApprove = (id: string) => {
+  const handleApprove = (id: string) =>
     setApprovals(prev => prev.map(a => a.id === id ? { ...a, status: "approved" } : a));
-  };
 
   const handleReject = (id: string) => {
     setApprovals(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" } : a));
@@ -26,71 +76,72 @@ export default function ApprovalsPage() {
   };
 
   const ApprovalCard = ({ a }: { a: Approval }) => {
-    const urgCfg = URGENCY_CONFIG[a.urgency];
+    const urgCfg    = URGENCY_CONFIG[a.urgency];
     const deptColor = DEPARTMENT_COLORS[a.department];
     const isHandled = a.status !== "pending";
+    const advancePaid = a.advancePaid ?? 0;
+    const balancePending = Math.max(0, a.estimatedTotal - advancePaid);
 
     return (
-      <div className={`bg-white rounded-2xl border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all ${
-        isHandled ? "border-[#E8E8ED] opacity-60" : "border-[#E8E8ED] hover:border-[#D2D2D7]"
-      }`}>
+      <div className="card p-5" style={{ opacity: isHandled ? 0.6 : 1 }}>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[11px] font-semibold text-[#AEAEB2] font-mono">{a.requestNumber}</span>
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className="text-[11px] font-mono text-3">{a.requestNumber}</span>
               <Badge label={DEPARTMENT_LABELS[a.department]} color={deptColor.text} bg={deptColor.bg} size="sm" />
               <Badge label={urgCfg.label} color={urgCfg.color} bg={urgCfg.bg} size="sm" />
             </div>
-            <p className="text-[13.5px] font-semibold text-[#1D1D1F]">
-              {a.items.map(i => i.name).join(", ")}
+            <p className="text-[14px] font-semibold text-1 leading-snug">{a.items.map(i => i.name).join(", ")}</p>
+            <p className="text-[12px] text-3 mt-1">
+              By {a.requesterName}{a.eventName ? ` · ${a.eventName}` : ""} · {formatDate(a.createdAt)}
             </p>
-            <div className="flex items-center gap-2 mt-1.5 text-[12px] text-[#8E8E93]">
-              <span>By {a.requesterName}</span>
-              {a.eventName && <><span>·</span><span>{a.eventName}</span></>}
-              <span>·</span>
-              <span>{formatDate(a.createdAt)}</span>
-            </div>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-[20px] font-semibold text-[#1D1D1F]">{formatCurrency(a.estimatedTotal)}</p>
-            {a.estimatedTotal > 15000 && (
-              <p className="text-[11px] text-[#FF9F0A] font-medium mt-0.5">Above ₹15k threshold</p>
+            <p className="text-[24px] font-bold text-1">{formatCurrency(a.estimatedTotal)}</p>
+            {advancePaid > 0 && (
+              <p className="text-[11px] mt-0.5" style={{ color: "var(--text-3)" }}>
+                Bal. {formatCurrency(balancePending)}
+              </p>
             )}
           </div>
         </div>
 
-        {/* Items breakdown */}
-        <div className="bg-[#F5F5F7] rounded-xl p-3 mb-4">
+        {/* Items */}
+        <div className="rounded-xl p-3 mb-4" style={{ backgroundColor: "var(--surface-2)" }}>
           {a.items.map((item, i) => (
-            <div key={i} className="flex items-center justify-between text-[12px]">
-              <span className="text-[#636366]">{item.qty}x {item.name}</span>
-              <span className="font-medium text-[#1D1D1F]">{formatCurrency(item.qty * item.estimatedUnitPrice)}</span>
+            <div key={i} className="flex items-center justify-between text-[12px] py-0.5">
+              <span className="text-3">{item.qty}× {item.name}</span>
+              <span className="font-semibold text-1">{formatCurrency(item.qty * item.estimatedUnitPrice)}</span>
             </div>
           ))}
+          {advancePaid > 0 && (
+            <div className="flex items-center justify-between text-[12px] pt-2 mt-2 border-t" style={{ borderColor: "var(--border)" }}>
+              <span style={{ color: "var(--success)" }}>Advance paid</span>
+              <span className="font-semibold" style={{ color: "var(--success)" }}>{formatCurrency(advancePaid)}</span>
+            </div>
+          )}
         </div>
 
-        {/* Actions or status */}
         {!isHandled ? (
-          <div className="flex gap-2.5">
+          <>
+            <button onClick={() => handleApprove(a.id)} className="w-full btn-primary justify-center text-[13.5px] py-3 rounded-2xl">
+              <CheckCircle2 size={15} /> Approve
+            </button>
             <button
               onClick={() => setRejectModal(a.id)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[13px] font-medium text-[#FF3B30] border border-[#FF3B30]/20 bg-[#FFF2F1] rounded-xl hover:bg-[#FF3B30] hover:text-white transition-colors"
+              className="w-full text-center text-[12px] mt-2 py-1.5 font-medium transition-colors"
+              style={{ color: "var(--text-3)" }}
             >
-              <XCircle size={14} /> Reject
+              Reject
             </button>
-            <button
-              onClick={() => handleApprove(a.id)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[13px] font-semibold text-white bg-[#1D1D1F] rounded-xl hover:bg-[#3A3A3C] transition-colors"
-            >
-              <CheckCircle2 size={14} /> Approve
-            </button>
-          </div>
+          </>
         ) : (
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium ${
-            a.status === "approved"
-              ? "bg-[#F0FAF3] text-[#34C759]"
-              : "bg-[#FFF2F1] text-[#FF3B30]"
-          }`}>
+          <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium"
+            style={{
+              backgroundColor: a.status === "approved" ? "var(--success-bg)" : "var(--danger-bg)",
+              color: a.status === "approved" ? "var(--success)" : "var(--danger)",
+            }}
+          >
             {a.status === "approved" ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
             {a.status === "approved" ? "Approved" : "Rejected"}
           </div>
@@ -100,64 +151,60 @@ export default function ApprovalsPage() {
   };
 
   return (
-    <div className="animate-[fadeIn_0.25s_ease-out]">
-      <Header title="Approvals" subtitle={`${pending.length} pending approval${pending.length !== 1 ? "s" : ""}`} />
+    <div className="anim-fade">
+      <Header title="Approvals" subtitle={pending.length > 0 ? `${pending.length} pending` : "All clear"} />
+      <div className="p-6">
+        <ApprovalRuleBanner />
 
-      <div className="p-6 space-y-6">
-        {/* Pending */}
-        {pending.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-3">
-              <Clock size={14} className="text-[#FF9F0A]" />
-              <h2 className="text-[13px] font-semibold text-[#1D1D1F]">Needs Your Approval</h2>
-              <span className="text-[11px] bg-[#FF9F0A] text-white rounded-full px-2 py-0.5 font-semibold">{pending.length}</span>
-            </div>
-            <div className="space-y-3">
-              {pending.map(a => <ApprovalCard key={a.id} a={a} />)}
-            </div>
-          </section>
-        )}
-
-        {/* Handled */}
-        {handled.length > 0 && (
-          <section>
-            <h2 className="text-[13px] font-semibold text-[#8E8E93] mb-3">Previously Handled</h2>
-            <div className="space-y-3">
-              {handled.map(a => <ApprovalCard key={a.id} a={a} />)}
-            </div>
-          </section>
-        )}
-
-        {pending.length === 0 && handled.length === 0 && (
-          <div className="text-center py-16">
-            <CheckCircle2 size={32} className="text-[#D2D2D7] mx-auto mb-3" />
-            <p className="text-[14px] font-medium text-[#AEAEB2]">No approvals needed</p>
+        {approvals.length === 0 ? (
+          <div className="card p-10 flex flex-col items-center gap-3">
+            <CheckCircle2 size={32} style={{ color: "var(--success)" }} />
+            <p className="text-[15px] font-semibold text-1">Nothing to approve</p>
+            <p className="text-[13px]" style={{ color: "var(--text-3)" }}>
+              Requests above ₹15,000 will appear here once submitted.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {pending.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-3">
+                  <h2 className="text-[12px] font-semibold text-3 uppercase tracking-widest">Pending</h2>
+                  <span className="text-[10px] text-white font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "var(--warning)" }}>{pending.length}</span>
+                </div>
+                <div className="space-y-3">
+                  {pending.map(a => <ApprovalCard key={a.id} a={a} />)}
+                </div>
+              </section>
+            )}
+            {handled.length > 0 && (
+              <section>
+                <h2 className="text-[12px] font-semibold text-3 uppercase tracking-widest mb-3">Handled</h2>
+                <div className="space-y-3">
+                  {handled.map(a => <ApprovalCard key={a.id} a={a} />)}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>
 
-      {/* Reject modal */}
       {rejectModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-[slideUp_0.25s_ease-out]">
-            <h2 className="text-[17px] font-semibold text-[#1D1D1F] mb-1">Reject Request</h2>
-            <p className="text-[13px] text-[#636366] mb-4">Provide a reason so the requester knows what to fix.</p>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="card anim-slide w-full max-w-sm p-6" style={{ boxShadow: "var(--modal-shadow)" }}>
+            <h2 className="text-[16px] font-semibold text-1 mb-1">Reject Request</h2>
+            <p className="text-[13px] text-3 mb-4">Give a reason so the requester can act on it.</p>
             <textarea
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               placeholder="e.g. Please get 2 competing quotes first..."
               rows={3}
-              className="w-full px-3 py-2.5 text-[13px] border border-[#E8E8ED] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF3B30] placeholder:text-[#AEAEB2] resize-none mb-4"
+              className="field resize-none mb-4"
             />
             <div className="flex gap-2.5">
-              <button onClick={() => setRejectModal(null)} className="flex-1 py-2.5 text-[13px] font-medium text-[#636366] border border-[#E8E8ED] rounded-xl hover:bg-[#F5F5F7] transition-colors">
-                Cancel
-              </button>
-              <button
-                onClick={() => handleReject(rejectModal)}
-                className="flex-1 py-2.5 text-[13px] font-semibold text-white bg-[#FF3B30] rounded-xl hover:bg-[#E0352B] transition-colors"
-              >
-                Reject Request
+              <button onClick={() => setRejectModal(null)} className="btn-ghost flex-1 justify-center">Cancel</button>
+              <button onClick={() => handleReject(rejectModal)} className="flex-1 py-2.5 text-[13px] font-semibold text-white rounded-xl" style={{ backgroundColor: "var(--danger)" }}>
+                Reject
               </button>
             </div>
           </div>

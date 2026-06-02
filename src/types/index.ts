@@ -1,4 +1,4 @@
-export type UserRole = "requester" | "procurement" | "finance" | "management" | "admin";
+export type UserRole = "requester" | "finance" | "management";
 
 export type Department = "embedded" | "r_and_d" | "software" | "event" | "general_office";
 
@@ -83,6 +83,7 @@ export interface ProcurementRequest {
   category: "event" | "general" | "r_and_d";
   items: RequestItem[];
   estimatedTotal: number;
+  advancePaid?: number;
   urgency: Urgency;
   notes?: string;
   status: RequestStatus;
@@ -153,6 +154,7 @@ export interface Approval {
   eventName?: string;
   items: RequestItem[];
   estimatedTotal: number;
+  advancePaid?: number;
   urgency: Urgency;
   approverId?: string;
   status: "pending" | "approved" | "rejected";

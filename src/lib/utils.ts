@@ -52,44 +52,42 @@ export const DEPARTMENT_LABELS: Record<Department, string> = {
 };
 
 export const DEPARTMENT_COLORS: Record<Department, { bg: string; text: string }> = {
-  embedded: { bg: "#F5EEFA", text: "#AF52DE" },
-  r_and_d: { bg: "#E8F1FB", text: "#0071E3" },
-  software: { bg: "#F0FAF3", text: "#34C759" },
-  event: { bg: "#FFF8EC", text: "#FF9F0A" },
-  general_office: { bg: "#F5F5F7", text: "#636366" },
+  embedded:      { bg: "rgba(124,58,237,0.12)",  text: "#7C3AED" },
+  r_and_d:       { bg: "rgba(79,70,229,0.12)",   text: "#4F46E5" },
+  software:      { bg: "rgba(16,185,129,0.12)",  text: "#10B981" },
+  event:         { bg: "rgba(245,158,11,0.12)",  text: "#F59E0B" },
+  general_office:{ bg: "rgba(156,163,175,0.15)", text: "#6B7280" },
 };
 
 export const STATUS_CONFIG: Record<RequestStatus, { label: string; color: string; bg: string }> = {
-  draft: { label: "Draft", color: "#636366", bg: "#F5F5F7" },
-  pending_approval: { label: "Pending Approval", color: "#FF9F0A", bg: "#FFF8EC" },
-  approved: { label: "Approved", color: "#34C759", bg: "#F0FAF3" },
-  rejected: { label: "Rejected", color: "#FF3B30", bg: "#FFF2F1" },
-  ordered: { label: "Ordered", color: "#0071E3", bg: "#E8F1FB" },
-  advance_paid: { label: "Advance Paid", color: "#AF52DE", bg: "#F5EEFA" },
-  received: { label: "Received", color: "#34C759", bg: "#F0FAF3" },
-  invoice_uploaded: { label: "Invoice Uploaded", color: "#FF9F0A", bg: "#FFF8EC" },
-  partially_paid: { label: "Partially Paid", color: "#FF9F0A", bg: "#FFF8EC" },
-  closed: { label: "Closed", color: "#636366", bg: "#F5F5F7" },
+  draft:            { label: "Draft",           color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
+  pending_approval: { label: "Pending Approval",color: "#F59E0B", bg: "rgba(245,158,11,0.12)"  },
+  approved:         { label: "Approved",        color: "#10B981", bg: "rgba(16,185,129,0.12)"  },
+  rejected:         { label: "Rejected",        color: "#EF4444", bg: "rgba(239,68,68,0.12)"   },
+  ordered:          { label: "Ordered",         color: "#4F46E5", bg: "rgba(79,70,229,0.12)"   },
+  advance_paid:     { label: "Advance Paid",    color: "#7C3AED", bg: "rgba(124,58,237,0.12)"  },
+  received:         { label: "Received",        color: "#10B981", bg: "rgba(16,185,129,0.12)"  },
+  invoice_uploaded: { label: "Invoice Uploaded",color: "#F59E0B", bg: "rgba(245,158,11,0.12)"  },
+  partially_paid:   { label: "Partially Paid",  color: "#F97316", bg: "rgba(249,115,22,0.12)"  },
+  closed:           { label: "Closed",          color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
 };
 
 export const INVOICE_STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bg: string }> = {
-  pending: { label: "Pending", color: "#0071E3", bg: "#E8F1FB" },
-  partially_paid: { label: "Partial", color: "#FF9F0A", bg: "#FFF8EC" },
-  paid: { label: "Paid", color: "#34C759", bg: "#F0FAF3" },
-  overdue: { label: "Overdue", color: "#FF3B30", bg: "#FFF2F1" },
+  pending:       { label: "Pending",        color: "#4F46E5", bg: "rgba(79,70,229,0.12)"   },
+  partially_paid:{ label: "Partial",        color: "#F97316", bg: "rgba(249,115,22,0.12)"  },
+  paid:          { label: "Paid",           color: "#10B981", bg: "rgba(16,185,129,0.12)"  },
+  overdue:       { label: "Overdue",        color: "#EF4444", bg: "rgba(239,68,68,0.12)"   },
 };
 
 export const URGENCY_CONFIG: Record<Urgency, { label: string; color: string; bg: string }> = {
-  low: { label: "Low", color: "#636366", bg: "#F5F5F7" },
-  medium: { label: "Medium", color: "#0071E3", bg: "#E8F1FB" },
-  high: { label: "High", color: "#FF9F0A", bg: "#FFF8EC" },
-  critical: { label: "Critical", color: "#FF3B30", bg: "#FFF2F1" },
+  low:      { label: "Low",      color: "#6B7280", bg: "rgba(156,163,175,0.12)" },
+  medium:   { label: "Medium",   color: "#4F46E5", bg: "rgba(79,70,229,0.12)"  },
+  high:     { label: "High",     color: "#F59E0B", bg: "rgba(245,158,11,0.12)" },
+  critical: { label: "Critical", color: "#EF4444", bg: "rgba(239,68,68,0.12)"  },
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  requester: "Requester",
-  procurement: "Procurement",
-  finance: "Finance",
-  management: "Management",
-  admin: "Admin",
+  requester: "Operations",
+  finance:   "Finance",
+  management:"Approver",
 };

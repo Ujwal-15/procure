@@ -25,98 +25,87 @@ export default function NewVendorPage() {
     router.push("/vendors");
   };
 
-  const fieldGroups = [
-    {
-      title: "Vendor Information",
-      fields: [
-        { key: "name", label: "Company / Vendor Name", placeholder: "e.g. Sharma AV Solutions", required: true, col: 2 },
-        { key: "contactName", label: "Contact Person", placeholder: "e.g. Rajesh Sharma", required: true, col: 1 },
-        { key: "phone", label: "Phone Number", placeholder: "+91 98765 43210", required: true, col: 1 },
-        { key: "email", label: "Email Address", placeholder: "vendor@email.com", required: false, col: 1 },
-        { key: "location", label: "City / Location", placeholder: "e.g. Mumbai", required: false, col: 1 },
-      ],
-    },
-    {
-      title: "Payment Details",
-      fields: [
-        { key: "upiId", label: "UPI ID", placeholder: "vendor@hdfc", required: false, col: 2 },
-        { key: "bankName", label: "Bank Name", placeholder: "e.g. HDFC Bank", required: false, col: 1 },
-        { key: "accountNumber", label: "Account Number", placeholder: "XXXX XXXX XXXX", required: false, col: 1 },
-        { key: "ifscCode", label: "IFSC Code", placeholder: "HDFC0001234", required: false, col: 1 },
-      ],
-    },
-  ];
-
   return (
-    <div className="animate-[fadeIn_0.25s_ease-out]">
+    <div className="anim-fade">
       <Header title="Add New Vendor" />
       <div className="p-6 max-w-2xl mx-auto">
-        <Link href="/vendors" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#636366] hover:text-[#1D1D1F] mb-5 transition-colors">
+        <Link href="/vendors" className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-5 transition-colors" style={{ color: "var(--text-3)" }}>
           <ArrowLeft size={14} /> Back to vendors
         </Link>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {fieldGroups.map(group => (
-            <div key={group.title} className="bg-white rounded-2xl border border-[#E8E8ED] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-              <h2 className="text-[14px] font-semibold text-[#1D1D1F] mb-4">{group.title}</h2>
-              <div className="grid grid-cols-2 gap-4">
-                {/* Category select (only in first group) */}
-                {group.title === "Vendor Information" && (
-                  <div>
-                    <label className="block text-[12px] font-medium text-[#1D1D1F] mb-1.5">
-                      Category <span className="text-[#FF3B30]">*</span>
-                    </label>
-                    <select
-                      value={form.category}
-                      onChange={e => update("category", e.target.value)}
-                      className="w-full px-3 py-2.5 text-[13px] border border-[#E8E8ED] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0071E3] bg-white"
-                    >
-                      <option value="">Select category</option>
-                      {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                    </select>
-                  </div>
-                )}
-                {group.fields.map(f => (
-                  <div key={f.key} className={f.col === 2 ? "col-span-2" : ""}>
-                    <label className="block text-[12px] font-medium text-[#1D1D1F] mb-1.5">
-                      {f.label} {f.required && <span className="text-[#FF3B30]">*</span>}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={f.placeholder}
-                      value={form[f.key as keyof typeof form]}
-                      onChange={e => update(f.key, e.target.value)}
-                      required={f.required}
-                      className="w-full px-3 py-2.5 text-[13px] border border-[#E8E8ED] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0071E3] placeholder:text-[#AEAEB2]"
-                    />
-                  </div>
-                ))}
+          {/* Vendor info */}
+          <div className="card p-5">
+            <h2 className="text-[14px] font-semibold text-1 mb-4">Vendor Information</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Company / Vendor Name <span style={{ color: "var(--danger)" }}>*</span></label>
+                <input type="text" placeholder="e.g. Sharma AV Solutions" value={form.name} onChange={e => update("name", e.target.value)} required className="field" />
               </div>
-              {group.title === "Vendor Information" && (
-                <div className="mt-4">
-                  <label className="block text-[12px] font-medium text-[#1D1D1F] mb-1.5">Notes <span className="text-[#8E8E93] font-normal">(optional)</span></label>
-                  <textarea
-                    placeholder="Payment terms, preferred contact time, any other notes..."
-                    value={form.notes}
-                    onChange={e => update("notes", e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2.5 text-[13px] border border-[#E8E8ED] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0071E3] placeholder:text-[#AEAEB2] resize-none"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Category <span style={{ color: "var(--danger)" }}>*</span></label>
+                <select value={form.category} onChange={e => update("category", e.target.value)} className="field">
+                  <option value="">Select category</option>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Contact Person <span style={{ color: "var(--danger)" }}>*</span></label>
+                <input type="text" placeholder="e.g. Rajesh Sharma" value={form.contactName} onChange={e => update("contactName", e.target.value)} required className="field" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Phone Number <span style={{ color: "var(--danger)" }}>*</span></label>
+                <input type="text" placeholder="+91 98765 43210" value={form.phone} onChange={e => update("phone", e.target.value)} required className="field" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Email Address</label>
+                <input type="email" placeholder="vendor@email.com" value={form.email} onChange={e => update("email", e.target.value)} className="field" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">City / Location</label>
+                <input type="text" placeholder="e.g. Mumbai" value={form.location} onChange={e => update("location", e.target.value)} className="field" />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-[12px] font-medium text-1 mb-1.5">
+                  Notes <span className="font-normal" style={{ color: "var(--text-3)" }}>(optional)</span>
+                </label>
+                <textarea
+                  placeholder="Payment terms, preferred contact time, any other notes..."
+                  value={form.notes}
+                  onChange={e => update("notes", e.target.value)}
+                  rows={2}
+                  className="field resize-none"
+                />
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* Payment details */}
+          <div className="card p-5">
+            <h2 className="text-[14px] font-semibold text-1 mb-4">Payment Details</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-[12px] font-medium text-1 mb-1.5">UPI ID</label>
+                <input type="text" placeholder="vendor@hdfc" value={form.upiId} onChange={e => update("upiId", e.target.value)} className="field font-mono" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Bank Name</label>
+                <input type="text" placeholder="e.g. HDFC Bank" value={form.bankName} onChange={e => update("bankName", e.target.value)} className="field" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Account Number</label>
+                <input type="text" placeholder="XXXX XXXX XXXX" value={form.accountNumber} onChange={e => update("accountNumber", e.target.value)} className="field font-mono" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-medium text-1 mb-1.5">IFSC Code</label>
+                <input type="text" placeholder="HDFC0001234" value={form.ifscCode} onChange={e => update("ifscCode", e.target.value)} className="field font-mono" />
+              </div>
+            </div>
+          </div>
 
           <div className="flex gap-3">
-            <Link href="/vendors" className="flex-1 py-3 text-[13px] font-medium text-center text-[#636366] border border-[#E8E8ED] rounded-xl hover:bg-[#F5F5F7] transition-colors">
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              className="flex-1 py-3 text-[13px] font-semibold text-white bg-[#1D1D1F] rounded-xl hover:bg-[#3A3A3C] transition-colors"
-            >
-              Add Vendor
-            </button>
+            <Link href="/vendors" className="btn-ghost flex-1 justify-center">Cancel</Link>
+            <button type="submit" className="btn-primary flex-1 justify-center">Add Vendor</button>
           </div>
         </form>
       </div>

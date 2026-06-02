@@ -2,10 +2,9 @@
 import { useState } from "react";
 import {
   AlertTriangle, CheckCircle2, Clock, Bell, FileText,
-  IndianRupee, Package, CheckSquare, X
+  Package, CheckSquare, X,
 } from "lucide-react";
 import Header from "@/components/layout/Header";
-import { formatCurrency } from "@/lib/utils";
 
 type NotifType = "overdue" | "approval" | "paid" | "invoice" | "delivery" | "reminder";
 
@@ -78,12 +77,12 @@ const MOCK_NOTIFICATIONS: Notification[] = [
 ];
 
 const TYPE_CONFIG: Record<NotifType, { icon: React.ElementType; color: string; bg: string }> = {
-  overdue:  { icon: AlertTriangle,  color: "#FF3B30", bg: "#FFF2F1" },
-  approval: { icon: CheckSquare,    color: "#FF9F0A", bg: "#FFF8EC" },
-  reminder: { icon: Clock,          color: "#0071E3", bg: "#E8F1FB" },
-  invoice:  { icon: FileText,       color: "#AF52DE", bg: "#F5EEFA" },
-  paid:     { icon: CheckCircle2,   color: "#34C759", bg: "#F0FAF3" },
-  delivery: { icon: Package,        color: "#636366", bg: "#F5F5F7" },
+  overdue:  { icon: AlertTriangle, color: "var(--danger)",   bg: "var(--danger-bg)"  },
+  approval: { icon: CheckSquare,   color: "var(--warning)",  bg: "var(--warning-bg)" },
+  reminder: { icon: Clock,         color: "var(--primary)",  bg: "var(--primary-light)" },
+  invoice:  { icon: FileText,      color: "var(--purple)",   bg: "var(--purple-bg)"  },
+  paid:     { icon: CheckCircle2,  color: "var(--success)",  bg: "var(--success-bg)" },
+  delivery: { icon: Package,       color: "var(--text-3)",   bg: "var(--surface-2)"  },
 };
 
 export default function NotificationsPage() {
@@ -103,47 +102,46 @@ export default function NotificationsPage() {
     setNotifications(prev => prev.filter(n => n.id !== id));
 
   return (
-    <div className="animate-[fadeIn_0.25s_ease-out]">
+    <div className="anim-fade">
       <Header title="Notifications" subtitle={unreadCount > 0 ? `${unreadCount} unread` : "All caught up"} />
 
       <div className="p-6 max-w-2xl mx-auto space-y-4">
         {/* Toolbar */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 bg-white rounded-xl border border-[#E8E8ED] p-1 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center gap-1 card p-1" style={{ borderRadius: 10 }}>
             {(["all", "unread"] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 text-[12.5px] font-medium rounded-lg transition-all capitalize ${
-                  filter === f ? "bg-[#1D1D1F] text-white" : "text-[#636366] hover:text-[#1D1D1F]"
-                }`}
+                className="px-3 py-1.5 text-[12.5px] font-medium rounded-lg transition-all capitalize"
+                style={{
+                  backgroundColor: filter === f ? "var(--primary)" : "transparent",
+                  color: filter === f ? "#fff" : "var(--text-3)",
+                }}
               >
                 {f}
                 {f === "unread" && unreadCount > 0 && (
-                  <span className="ml-1.5 text-[10px] bg-[#FF3B30] text-white rounded-full px-1.5 py-0.5">{unreadCount}</span>
+                  <span className="ml-1.5 text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "var(--danger)" }}>{unreadCount}</span>
                 )}
               </button>
             ))}
           </div>
           {unreadCount > 0 && (
-            <button
-              onClick={markAllRead}
-              className="text-[12.5px] font-medium text-[#0071E3] hover:underline"
-            >
+            <button onClick={markAllRead} className="text-[12.5px] font-semibold" style={{ color: "var(--primary)" }}>
               Mark all as read
             </button>
           )}
         </div>
 
-        {/* Notification list */}
-        <div className="bg-white rounded-2xl border border-[#E8E8ED] shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden divide-y divide-[#F5F5F7]">
+        {/* List */}
+        <div className="card p-0 overflow-hidden">
           {displayed.length === 0 ? (
             <div className="flex flex-col items-center py-16">
-              <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] flex items-center justify-center mb-3">
-                <Bell size={20} className="text-[#D2D2D7]" />
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: "var(--surface-2)" }}>
+                <Bell size={20} style={{ color: "var(--text-3)" }} />
               </div>
-              <p className="text-[14px] font-medium text-[#AEAEB2]">No notifications</p>
-              <p className="text-[12px] text-[#D2D2D7] mt-1">You&apos;re all caught up</p>
+              <p className="text-[14px] font-medium" style={{ color: "var(--text-3)" }}>No notifications</p>
+              <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>You&apos;re all caught up</p>
             </div>
           ) : (
             displayed.map(notif => {
@@ -153,47 +151,44 @@ export default function NotificationsPage() {
                 <div
                   key={notif.id}
                   onClick={() => markRead(notif.id)}
-                  className={`relative flex items-start gap-3.5 px-5 py-4 hover:bg-[#F5F5F7] transition-colors cursor-pointer ${
-                    !notif.read ? "bg-[#F5F5F7]/40" : ""
-                  }`}
+                  className="relative flex items-start gap-3.5 px-5 py-4 tbl-row cursor-pointer"
+                  style={!notif.read ? { backgroundColor: "var(--primary-light)" } : {}}
                 >
-                  {/* Unread dot */}
                   {!notif.read && (
-                    <div className="absolute left-2.5 top-5 w-1.5 h-1.5 rounded-full bg-[#0071E3]" />
+                    <div className="absolute left-2.5 top-5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
                   )}
-
-                  {/* Icon */}
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
                     style={{ backgroundColor: cfg.bg }}
                   >
                     <Icon size={16} style={{ color: cfg.color }} />
                   </div>
-
-                  {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-[13px] leading-snug ${!notif.read ? "font-semibold text-[#1D1D1F]" : "font-medium text-[#3A3A3C]"}`}>
+                    <p className="text-[13px] leading-snug" style={{
+                      fontWeight: !notif.read ? 600 : 500,
+                      color: "var(--text-1)",
+                    }}>
                       {notif.title}
                     </p>
-                    <p className="text-[12px] text-[#8E8E93] mt-0.5 leading-relaxed">{notif.body}</p>
+                    <p className="text-[12px] mt-0.5 leading-relaxed" style={{ color: "var(--text-3)" }}>{notif.body}</p>
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="text-[11px] text-[#AEAEB2]">{notif.time}</span>
+                      <span className="text-[11px]" style={{ color: "var(--text-3)" }}>{notif.time}</span>
                       {notif.actionLabel && notif.actionHref && (
                         <a
                           href={notif.actionHref}
                           onClick={e => e.stopPropagation()}
-                          className="text-[11.5px] font-semibold text-[#0071E3] hover:underline"
+                          className="text-[11.5px] font-semibold"
+                          style={{ color: "var(--primary)" }}
                         >
                           {notif.actionLabel} →
                         </a>
                       )}
                     </div>
                   </div>
-
-                  {/* Dismiss */}
                   <button
                     onClick={e => { e.stopPropagation(); dismiss(notif.id); }}
-                    className="w-6 h-6 rounded-lg flex items-center justify-center text-[#D2D2D7] hover:text-[#636366] hover:bg-[#E8E8ED] transition-colors shrink-0 mt-0.5"
+                    className="w-6 h-6 rounded-lg flex items-center justify-center transition-colors shrink-0 mt-0.5"
+                    style={{ color: "var(--text-3)" }}
                   >
                     <X size={13} />
                   </button>
