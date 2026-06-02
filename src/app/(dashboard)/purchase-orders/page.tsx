@@ -1,29 +1,10 @@
 "use client";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { REQUESTS, VENDORS } from "@/lib/mock-data";
+import { useData } from "@/contexts/DataContext";
 import { formatCurrency, formatDate, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
 
 const ACTIVE_STATUSES = ["ordered", "advance_paid", "received", "invoice_uploaded", "partially_paid", "closed"];
-
-const MOCK_POS = REQUESTS.filter(r => ACTIVE_STATUSES.includes(r.status)).map((r, i) => ({
-  ...r,
-  poNumber: `PO-${new Date().getFullYear()}-00${i + 1}`,
-  vendorName: VENDORS[i % Math.max(VENDORS.length, 1)]?.name ?? "—",
-  orderDate: r.createdAt,
-  expectedDelivery: r.updatedAt,
-  deliveryStatus: (
-    r.status === "received" || r.status === "invoice_uploaded" || r.status === "closed" ? "received"
-    : r.status === "advance_paid" ? "partial"
-    : "pending"
-  ) as "pending" | "partial" | "received",
-  invoicedAmount: (
-    r.status === "closed" ? r.estimatedTotal
-    : r.status === "invoice_uploaded" || r.status === "received" ? Math.round(r.estimatedTotal * 0.65)
-    : r.status === "advance_paid" ? Math.round(r.estimatedTotal * 0.30)
-    : 0
-  ),
-}));
 
 const DELIVERY_CFG = {
   pending:  { label: "Pending Delivery", color: "var(--warning)", bg: "var(--warning-bg)"   },
@@ -62,6 +43,25 @@ function ProgressBar({ paid, total }: { paid: number; total: number }) {
 }
 
 export default function PurchaseOrdersPage() {
+  const { requests, vendors } = useData();
+
+  const MOCK_POS = requests.filter(r => ACTIVE_STATUSES.includes(r.status)).map((r, i) => ({
+    ...r,
+    poNumber:         `PO-${new Date().getFullYear()}-${String(i + 1).padStart(3, "0")}`,
+    vendorName:       vendors[i % Math.max(vendors.length, 1)]?.name ?? "—",
+    orderDate:        r.createdAt,
+    expectedDelivery: r.updatedAt,
+    deliveryStatus:   (
+      r.status === "received" || r.status === "invoice_uploaded" || r.status === "closed" ? "received"
+      : r.status === "advance_paid" ? "partial" : "pending"
+    ) as "pending" | "partial" | "received",
+    invoicedAmount:   (
+      r.status === "closed" ? r.estimatedTotal
+      : r.status === "invoice_uploaded" || r.status === "received" ? Math.round(r.estimatedTotal * 0.65)
+      : r.status === "advance_paid" ? Math.round(r.estimatedTotal * 0.30) : 0
+    ),
+  }));
+
   return (
     <div className="anim-fade">
       <Header title="Purchase Orders" subtitle={MOCK_POS.length > 0 ? `${MOCK_POS.length} active orders` : "No orders yet"} />

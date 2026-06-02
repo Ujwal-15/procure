@@ -3,10 +3,11 @@ import { useState } from "react";
 import { Search, Phone, Mail, MapPin, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
-import { VENDORS } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
+import { useData } from "@/contexts/DataContext";
 
 export default function VendorsPage() {
+  const { vendors: VENDORS } = useData();
   const [search, setSearch] = useState("");
   const filtered = VENDORS.filter(v =>
     v.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -16,7 +17,7 @@ export default function VendorsPage() {
 
   return (
     <div className="anim-fade">
-      <Header title="Vendors" subtitle={`${VENDORS.length} vendors`} action={{ label: "Add Vendor", href: "/vendors/new" }} />
+      <Header title="Vendors" subtitle={VENDORS.length > 0 ? `${VENDORS.length} vendors` : "No vendors yet"} action={{ label: "Add Vendor", href: "/vendors/new" }} />
 
       <div className="p-6 space-y-4">
         {/* Search */}
@@ -31,6 +32,15 @@ export default function VendorsPage() {
             style={{ paddingLeft: 36 }}
           />
         </div>
+
+        {/* Empty state */}
+        {VENDORS.length === 0 && (
+          <div className="card p-10 flex flex-col items-center text-center gap-3">
+            <p className="text-[15px] font-semibold text-1">No vendors yet</p>
+            <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Add vendors to link them to invoices and payments.</p>
+            <Link href="/vendors/new" className="btn-primary mt-2">Add First Vendor</Link>
+          </div>
+        )}
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

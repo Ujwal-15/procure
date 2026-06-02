@@ -4,7 +4,7 @@ import { Plus, Calendar, MapPin, IndianRupee } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { EVENTS, INVOICES, REQUESTS } from "@/lib/mock-data";
+import { useData } from "@/contexts/DataContext";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const STATUS_CFG = {
@@ -15,9 +15,10 @@ const STATUS_CFG = {
 };
 
 export default function EventsPage() {
+  const { events: EVENTS, invoices: INVOICES, requests: REQUESTS } = useData();
   return (
     <div className="animate-[fadeIn_0.25s_ease-out]">
-      <Header title="Events & Projects" subtitle={`${EVENTS.length} events`} action={{ label: "New Event", href: "/events/new" }} />
+      <Header title="Events & Projects" subtitle={EVENTS.length > 0 ? `${EVENTS.length} events` : "No events yet"} action={{ label: "New Event", href: "/events/new" }} />
 
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {EVENTS.map(event => {

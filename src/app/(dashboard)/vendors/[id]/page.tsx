@@ -4,13 +4,25 @@ import { ArrowLeft, Phone, Mail, MapPin, CreditCard, FileText } from "lucide-rea
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { VENDORS, INVOICES } from "@/lib/mock-data";
+import { useData } from "@/contexts/DataContext";
 import { formatCurrency, formatDate, INVOICE_STATUS_CONFIG } from "@/lib/utils";
 
 export default function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const vendor = VENDORS.find(v => v.id === id) || VENDORS[0];
-  const vendorInvoices = INVOICES.filter(i => i.vendorId === vendor.id);
+  const { vendors, invoices } = useData();
+  const vendor = vendors.find(v => v.id === id) ?? vendors[0];
+  const vendorInvoices = invoices.filter(i => i.vendorId === (vendor?.id ?? ""));
+
+  if (!vendor) {
+    return (
+      <div className="anim-fade p-6">
+        <Link href="/vendors" className="inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors" style={{ color: "var(--text-3)" }}>
+          <ArrowLeft size={14} /> Back
+        </Link>
+        <p className="text-[14px] font-semibold text-1 mt-6">Vendor not found</p>
+      </div>
+    );
+  }
 
   const stats = [
     { label: "Total Paid",       value: formatCurrency(vendor.totalPaid),                              color: "var(--success)" },

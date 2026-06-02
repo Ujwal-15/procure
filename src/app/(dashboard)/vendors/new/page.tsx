@@ -4,15 +4,19 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
+import { useData } from "@/contexts/DataContext";
 
 const CATEGORIES = [
   "AV & Production", "Equipment Rental", "Lighting & SFX", "Logistics & Transport",
   "Printing & Branding", "Electronics & Components", "Fabrication & Decor",
-  "IT & Software", "Catering", "Security", "Other",
+  "IT & Software", "LED & AV Production", "Robotics & Automation", "Event Tech & Production",
+  "Office Supplies", "Catering", "Security", "Other",
 ];
 
 export default function NewVendorPage() {
   const router = useRouter();
+  const { addVendor } = useData();
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "", contactName: "", phone: "", email: "", category: "", location: "",
     bankName: "", accountNumber: "", ifscCode: "", upiId: "", notes: "",
@@ -20,9 +24,27 @@ export default function NewVendorPage() {
 
   const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/vendors");
+    setSubmitting(true);
+    try {
+      await addVendor({
+        name:          form.name,
+        contactName:   form.contactName,
+        phone:         form.phone,
+        email:         form.email || undefined,
+        category:      form.category,
+        location:      form.location,
+        bankName:      form.bankName || undefined,
+        accountNumber: form.accountNumber || undefined,
+        ifscCode:      form.ifscCode || undefined,
+        upiId:         form.upiId || undefined,
+        notes:         form.notes || undefined,
+      });
+      router.push("/vendors");
+    } catch {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -34,17 +56,16 @@ export default function NewVendorPage() {
         </Link>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Vendor info */}
           <div className="card p-5">
             <h2 className="text-[14px] font-semibold text-1 mb-4">Vendor Information</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <label className="block text-[12px] font-medium text-1 mb-1.5">Company / Vendor Name <span style={{ color: "var(--danger)" }}>*</span></label>
-                <input type="text" placeholder="e.g. Sharma AV Solutions" value={form.name} onChange={e => update("name", e.target.value)} required className="field" />
+                <input type="text" placeholder="e.g. LightCraft Productions" value={form.name} onChange={e => update("name", e.target.value)} required className="field" />
               </div>
               <div>
                 <label className="block text-[12px] font-medium text-1 mb-1.5">Category <span style={{ color: "var(--danger)" }}>*</span></label>
-                <select value={form.category} onChange={e => update("category", e.target.value)} className="field">
+                <select value={form.category} onChange={e => update("category", e.target.value)} required className="field">
                   <option value="">Select category</option>
                   {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                 </select>
@@ -61,26 +82,17 @@ export default function NewVendorPage() {
                 <label className="block text-[12px] font-medium text-1 mb-1.5">Email Address</label>
                 <input type="email" placeholder="vendor@email.com" value={form.email} onChange={e => update("email", e.target.value)} className="field" />
               </div>
-              <div>
-                <label className="block text-[12px] font-medium text-1 mb-1.5">City / Location</label>
-                <input type="text" placeholder="e.g. Mumbai" value={form.location} onChange={e => update("location", e.target.value)} className="field" />
+              <div className="col-span-2">
+                <label className="block text-[12px] font-medium text-1 mb-1.5">City / Location <span style={{ color: "var(--danger)" }}>*</span></label>
+                <input type="text" placeholder="e.g. Mumbai" value={form.location} onChange={e => update("location", e.target.value)} required className="field" />
               </div>
               <div className="col-span-2">
-                <label className="block text-[12px] font-medium text-1 mb-1.5">
-                  Notes <span className="font-normal" style={{ color: "var(--text-3)" }}>(optional)</span>
-                </label>
-                <textarea
-                  placeholder="Payment terms, preferred contact time, any other notes..."
-                  value={form.notes}
-                  onChange={e => update("notes", e.target.value)}
-                  rows={2}
-                  className="field resize-none"
-                />
+                <label className="block text-[12px] font-medium text-1 mb-1.5">Notes <span className="font-normal" style={{ color: "var(--text-3)" }}>(optional)</span></label>
+                <textarea placeholder="Payment terms, preferred contact time…" value={form.notes} onChange={e => update("notes", e.target.value)} rows={2} className="field resize-none" />
               </div>
             </div>
           </div>
 
-          {/* Payment details */}
           <div className="card p-5">
             <h2 className="text-[14px] font-semibold text-1 mb-4">Payment Details</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -105,7 +117,9 @@ export default function NewVendorPage() {
 
           <div className="flex gap-3">
             <Link href="/vendors" className="btn-ghost flex-1 justify-center">Cancel</Link>
-            <button type="submit" className="btn-primary flex-1 justify-center">Add Vendor</button>
+            <button type="submit" disabled={submitting} className="btn-primary flex-1 justify-center">
+              {submitting ? "Saving…" : "Add Vendor"}
+            </button>
           </div>
         </form>
       </div>

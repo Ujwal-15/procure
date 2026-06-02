@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ShoppingCart, Users, CreditCard,
-  BarChart3, CheckSquare, Settings, Package, Bell
+  BarChart3, CheckSquare, Settings, Package, Bell, LogOut
 } from "lucide-react";
 import { useCurrentUser } from "@/contexts/UserContext";
 import { ROLE_LABELS } from "@/lib/utils";
@@ -25,6 +25,11 @@ const ROLE_HOME: Record<string, string> = {
   finance:    "/invoices",
   management: "/approvals",
 };
+
+async function logout() {
+  await fetch("/api/logout", { method: "POST" });
+  window.location.href = "/login";
+}
 
 export default function Sidebar() {
   const path = usePathname();
@@ -72,6 +77,10 @@ export default function Sidebar() {
           <Settings size={15} />
           <span className="text-[13px]">Settings</span>
         </Link>
+        <button onClick={logout} className="nav-item w-full text-left">
+          <LogOut size={15} />
+          <span className="text-[13px]">Sign Out</span>
+        </button>
 
         {/* User switcher */}
         <div className="px-1">

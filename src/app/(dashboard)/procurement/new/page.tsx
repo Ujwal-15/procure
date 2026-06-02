@@ -21,6 +21,7 @@ export default function NewRequestPage() {
   const [eventName,   setEventName]   = useState("");
   const [notes,       setNotes]       = useState("");
   const [advancePaid, setAdvancePaid] = useState(0);
+  const [submitting,  setSubmitting]  = useState(false);
   const [items, setItems] = useState<Item[]>([{ name: "", qty: 1, unit: "units", estimatedUnitPrice: 0 }]);
 
   const total          = items.reduce((s, i) => s + i.qty * i.estimatedUnitPrice, 0);
@@ -32,9 +33,11 @@ export default function NewRequestPage() {
   const updateItem = (idx: number, field: keyof Item, value: string | number) =>
     setItems(p => p.map((item, i) => i === idx ? { ...item, [field]: value } : item));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addRequest({
+    setSubmitting(true);
+    try {
+      await addRequest({
       requesterId:   currentUser.id,
       requesterName: currentUser.name,
       department,
@@ -44,8 +47,11 @@ export default function NewRequestPage() {
       estimatedTotal: total,
       advancePaid:   advancePaid > 0 ? advancePaid : undefined,
       notes:         notes.trim() || undefined,
-    });
-    router.push("/procurement");
+      });
+      router.push("/procurement");
+    } catch {
+      setSubmitting(false);
+    }
   };
 
   const depts: Department[] = ["embedded", "r_and_d", "software", "event", "general_office"];
@@ -180,7 +186,7 @@ export default function NewRequestPage() {
             <Link href="/procurement" className="btn-ghost flex-1 justify-center">Cancel</Link>
             <button
               type="submit"
-              disabled={items.some(i => !i.name.trim()) || total === 0 || (forEvent && !eventName.trim())}
+              disabled={submitting || items.some(i => !i.name.trim()) || total === 0 || (forEvent && !eventName.trim())}
               className="btn-primary flex-1 justify-center"
             >
               {needsApproval ? "Submit for Approval" : "Submit Request"}
