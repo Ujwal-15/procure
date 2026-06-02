@@ -3,9 +3,9 @@ import { useState } from "react";
 import { CheckCircle2, XCircle, Clock, ChevronRight, Lock } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { APPROVALS } from "@/lib/mock-data";
 import { formatCurrency, formatDate, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
 import { useCurrentUser } from "@/contexts/UserContext";
+import { useData } from "@/contexts/DataContext";
 import type { Approval } from "@/types";
 
 function ApprovalRuleBanner() {
@@ -52,20 +52,21 @@ function ApprovalRuleBanner() {
 }
 
 export default function ApprovalsPage() {
-  const { currentUser } = useCurrentUser();
-  const [approvals, setApprovals] = useState<Approval[]>(APPROVALS);
-  const [rejectModal, setRejectModal] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
+  const { currentUser }   = useCurrentUser();
+  const { approvals, updateApprovalStatus } = useData();
+  const [rejectModal,   setRejectModal]   = useState<{ approvalId: string; requestId: string } | null>(null);
+  const [rejectReason,  setRejectReason]  = useState("");
 
   const canApprove = currentUser.role === "management";
   const pending    = approvals.filter(a => a.status === "pending");
   const handled    = approvals.filter(a => a.status !== "pending");
 
-  const handleApprove = (id: string) =>
-    setApprovals(prev => prev.map(a => a.id === id ? { ...a, status: "approved" } : a));
+  const doApprove = (a: Approval) =>
+    updateApprovalStatus(a.id, a.requestId, "approved");
 
-  const handleReject = (id: string) => {
-    setApprovals(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" } : a));
+  const doReject = () => {
+    if (!rejectModal) return;
+    updateApprovalStatus(rejectModal.approvalId, rejectModal.requestId, "rejected");
     setRejectModal(null);
     setRejectReason("");
   };
@@ -83,7 +84,7 @@ export default function ApprovalsPage() {
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span className="text-[11px] font-mono text-3">{a.requestNumber}</span>
               <Badge label={DEPARTMENT_LABELS[a.department]} color={deptColor.text} bg={deptColor.bg} size="sm" />
-              {a.eventName && <span className="text-[11px]" style={{ color: "var(--text-3)" }}>{a.eventName}</span>}
+              {a.eventName && <span className="text-[11px] italic" style={{ color: "var(--text-3)" }}>{a.eventName}</span>}
             </div>
             <p className="text-[14px] font-semibold text-1 leading-snug">{a.items.map(i => i.name).join(", ")}</p>
             <p className="text-[12px] text-3 mt-1">By {a.requesterName} · {formatDate(a.createdAt)}</p>
@@ -114,28 +115,21 @@ export default function ApprovalsPage() {
         {!isHandled ? (
           canApprove ? (
             <>
-              <button onClick={() => handleApprove(a.id)} className="w-full btn-primary justify-center text-[13.5px] py-3 rounded-2xl">
+              <button onClick={() => doApprove(a)} className="w-full btn-primary justify-center text-[13.5px] py-3 rounded-2xl">
                 <CheckCircle2 size={15} /> Approve
               </button>
-              <button
-                onClick={() => setRejectModal(a.id)}
-                className="w-full text-center text-[12px] mt-2 py-1.5 font-medium"
-                style={{ color: "var(--text-3)" }}
-              >
+              <button onClick={() => setRejectModal({ approvalId: a.id, requestId: a.requestId })} className="w-full text-center text-[12px] mt-2 py-1.5 font-medium" style={{ color: "var(--text-3)" }}>
                 Reject
               </button>
             </>
           ) : (
             <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium" style={{ backgroundColor: "var(--surface-2)", color: "var(--text-3)" }}>
-              <Lock size={13} /> Awaiting approval from Alok / Sanjeev
+              <Lock size={13} /> Awaiting Alok / Sanjeev sign-off
             </div>
           )
         ) : (
           <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium"
-            style={{
-              backgroundColor: a.status === "approved" ? "var(--success-bg)" : "var(--danger-bg)",
-              color: a.status === "approved" ? "var(--success)" : "var(--danger)",
-            }}
+            style={{ backgroundColor: a.status === "approved" ? "var(--success-bg)" : "var(--danger-bg)", color: a.status === "approved" ? "var(--success)" : "var(--danger)" }}
           >
             {a.status === "approved" ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
             {a.status === "approved" ? "Approved" : "Rejected"}
@@ -147,19 +141,15 @@ export default function ApprovalsPage() {
 
   return (
     <div className="anim-fade">
-      <Header
-        title="Approvals"
-        subtitle={pending.length > 0 ? `${pending.length} pending` : "All clear"}
-      />
+      <Header title="Approvals" subtitle={pending.length > 0 ? `${pending.length} pending` : "All clear"} />
       <div className="p-6">
         <ApprovalRuleBanner />
 
-        {/* Role notice for non-management */}
         {!canApprove && (
           <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-5 border" style={{ backgroundColor: "var(--surface-2)", borderColor: "var(--border)" }}>
             <Lock size={13} style={{ color: "var(--text-3)" }} />
             <p className="text-[12.5px]" style={{ color: "var(--text-3)" }}>
-              Viewing as <strong style={{ color: "var(--text-1)" }}>{currentUser.name}</strong> — only Alok or Sanjeev can approve or reject. Switch user to take action.
+              Viewing as <strong style={{ color: "var(--text-1)" }}>{currentUser.name}</strong> — switch to <strong style={{ color: "var(--text-1)" }}>Alok</strong> to approve or reject.
             </p>
           </div>
         )}
@@ -199,7 +189,7 @@ export default function ApprovalsPage() {
             <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="e.g. Please get 2 competing quotes first…" rows={3} className="field resize-none mb-4" />
             <div className="flex gap-2.5">
               <button onClick={() => setRejectModal(null)} className="btn-ghost flex-1 justify-center">Cancel</button>
-              <button onClick={() => handleReject(rejectModal)} className="flex-1 py-2.5 text-[13px] font-semibold text-white rounded-xl" style={{ backgroundColor: "var(--danger)" }}>Reject</button>
+              <button onClick={doReject} className="flex-1 py-2.5 text-[13px] font-semibold text-white rounded-xl" style={{ backgroundColor: "var(--danger)" }}>Reject</button>
             </div>
           </div>
         </div>

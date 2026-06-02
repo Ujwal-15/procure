@@ -4,7 +4,7 @@ import { AlertTriangle, Upload, CheckCircle2, FileText, X, CloudUpload, DollarSi
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
 import { useCurrentUser } from "@/contexts/UserContext";
-import { INVOICES, VENDORS } from "@/lib/mock-data";
+import { useData } from "@/contexts/DataContext";
 import { formatCurrency, formatDate, getDaysOverdue, getDaysUntilDue, INVOICE_STATUS_CONFIG, DEPARTMENT_LABELS } from "@/lib/utils";
 import type { InvoiceStatus } from "@/types";
 
@@ -18,6 +18,7 @@ const STATUS_TABS: { label: string; value: InvoiceStatus | "all" }[] = [
 
 export default function InvoicesPage() {
   const { currentUser } = useCurrentUser();
+  const { invoices, vendors, markInvoicePaid } = useData();
   const canMarkPaid = currentUser.role === "finance";
   const [activeTab,    setActiveTab]    = useState<InvoiceStatus | "all">("all");
   const [showMarkPaid, setShowMarkPaid] = useState<string | null>(null);
@@ -40,10 +41,11 @@ export default function InvoicesPage() {
     if (file) setUploadFile(file);
   };
 
-  const filtered       = activeTab === "all" ? INVOICES : INVOICES.filter(i => i.status === activeTab);
-  const overdueCount   = INVOICES.filter(i => i.status === "overdue").length;
-  const overdueTotal   = INVOICES.filter(i => i.status === "overdue").reduce((s, i) => s + i.balanceDue, 0);
-  const pendingTotal   = INVOICES.filter(i => i.status !== "paid").reduce((s, i) => s + i.balanceDue, 0);
+  const filtered       = activeTab === "all" ? invoices : invoices.filter(i => i.status === activeTab);
+  const overdueCount   = invoices.filter(i => i.status === "overdue").length;
+  const overdueTotal   = invoices.filter(i => i.status === "overdue").reduce((s, i) => s + i.balanceDue, 0);
+  const pendingTotal   = invoices.filter(i => i.status !== "paid").reduce((s, i) => s + i.balanceDue, 0);
+  const paidThisMonth  = invoices.filter(i => i.status === "paid").reduce((s, i) => s + i.grossAmount, 0);
 
   const sorted = [...filtered].sort((a, b) => {
     if (a.status === "overdue" && b.status !== "overdue") return -1;
@@ -63,9 +65,9 @@ export default function InvoicesPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Outstanding", value: pendingTotal > 0 ? formatCurrency(pendingTotal) : "—", sub: `${INVOICES.filter(i => i.status !== "paid").length} invoices pending`, icon: DollarSign,    color: "var(--primary)", bg: "var(--primary-light)" },
-            { label: "Overdue",     value: overdueTotal > 0 ? formatCurrency(overdueTotal) : "—", sub: overdueCount > 0 ? `${overdueCount} vendors waiting` : "None",           icon: AlertTriangle, color: "var(--danger)",  bg: "var(--danger-bg)"    },
-            { label: "Paid This Month", value: "—", sub: "No payments yet",                                                                                                     icon: CheckCircle2,  color: "var(--success)", bg: "var(--success-bg)"   },
+            { label: "Outstanding",     value: pendingTotal > 0 ? formatCurrency(pendingTotal) : "—",    sub: `${invoices.filter(i => i.status !== "paid").length} invoices pending`, icon: DollarSign,    color: "var(--primary)", bg: "var(--primary-light)" },
+            { label: "Overdue",         value: overdueTotal > 0 ? formatCurrency(overdueTotal) : "—", sub: overdueCount > 0 ? `${overdueCount} vendors waiting` : "None",     icon: AlertTriangle, color: "var(--danger)",  bg: "var(--danger-bg)"    },
+            { label: "Paid",            value: paidThisMonth > 0 ? formatCurrency(paidThisMonth) : "—", sub: `${invoices.filter(i=>i.status==="paid").length} invoices cleared`, icon: CheckCircle2, color: "var(--success)", bg: "var(--success-bg)"  },
           ].map(s => (
             <div key={s.label} className="card p-5">
               <div className="flex items-start justify-between gap-2">
@@ -211,7 +213,7 @@ export default function InvoicesPage() {
             </div>
             <div className="flex gap-2.5 mt-5">
               <button onClick={() => setShowMarkPaid(null)} className="btn-ghost flex-1 justify-center">Cancel</button>
-              <button onClick={() => setShowMarkPaid(null)} className="btn-primary flex-1 justify-center">Confirm Payment</button>
+              <button onClick={() => { if (showMarkPaid) markInvoicePaid(showMarkPaid); setShowMarkPaid(null); }} className="btn-primary flex-1 justify-center">Confirm Payment</button>
             </div>
           </div>
         </div>
@@ -274,9 +276,9 @@ export default function InvoicesPage() {
                 <label className="block text-[12px] font-medium text-1 mb-1.5">Vendor <span style={{ color: "var(--danger)" }}>*</span></label>
                 <select value={uploadForm.vendorId} onChange={e => updateUpload("vendorId", e.target.value)} className="field">
                   <option value="">Select vendor</option>
-                  {VENDORS.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                  {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
                 </select>
-                {VENDORS.length === 0 && (
+                {vendors.length === 0 && (
                   <p className="text-[11.5px] mt-1" style={{ color: "var(--text-3)" }}>No vendors yet — add one from the Vendors page first.</p>
                 )}
               </div>

@@ -4,8 +4,8 @@ import { ArrowLeft, CheckCircle2, User, Calendar, Tag } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { REQUESTS } from "@/lib/mock-data";
 import { formatCurrency, formatDate, STATUS_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
+import { useData } from "@/contexts/DataContext";
 
 const TIMELINE_STEPS = [
   { key: "pending_approval",  label: "Submitted",        desc: "Request raised and submitted"    },
@@ -24,7 +24,8 @@ const STATUS_ORDER = [
 
 export default function ProcurementDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const req = REQUESTS.find(r => r.id === id);
+  const { requests } = useData();
+  const req = requests.find(r => r.id === id);
 
   if (!req) {
     return (

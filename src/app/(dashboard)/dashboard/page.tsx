@@ -3,10 +3,17 @@ import { AlertTriangle, Clock, TrendingUp, CheckSquare, ArrowRight, FileText, Cr
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { INVOICES, APPROVALS, SPEND_BY_MONTH, SPEND_BY_DEPARTMENT, TOP_VENDORS, REQUESTS } from "@/lib/mock-data";
-import { formatCurrency, formatDate, getDaysOverdue, INVOICE_STATUS_CONFIG, DEPARTMENT_LABELS } from "@/lib/utils";
+import { TOP_VENDORS } from "@/lib/mock-data";
+import { formatCurrency, formatDate, getDaysOverdue, INVOICE_STATUS_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
 import DonutChart from "@/components/ui/DonutChart";
 import { useCurrentUser } from "@/contexts/UserContext";
+import { useData } from "@/contexts/DataContext";
+import type { Department } from "@/types";
+
+const DEPT_COLORS: Record<Department, string> = {
+  event: "#FF9F0A", r_and_d: "#0071E3", embedded: "#AF52DE",
+  software: "#34C759", general_office: "#8E8E93",
+};
 
 /* ── Custom bar chart ── */
 function SpendBars({ data }: { data: { month: string; amount: number }[] }) {
@@ -39,16 +46,17 @@ function SpendBars({ data }: { data: { month: string; amount: number }[] }) {
 
 export default function DashboardPage() {
   const { currentUser } = useCurrentUser();
+  const { requests, invoices, approvals } = useData();
   const canRaise = currentUser.role === "requester";
 
-  const overdue      = INVOICES.filter(i => i.status === "overdue");
-  const dueSoon      = INVOICES.filter(i => i.status === "pending" || i.status === "partially_paid");
+  const overdue      = invoices.filter(i => i.status === "overdue");
+  const dueSoon      = invoices.filter(i => i.status === "pending" || i.status === "partially_paid");
   const totalOverdue = overdue.reduce((s, i) => s + i.balanceDue, 0);
   const totalDue     = dueSoon.reduce((s, i) => s + i.balanceDue, 0);
-  const pendingApprv = APPROVALS.filter(a => a.status === "pending").length;
-  const myRequests   = REQUESTS.filter(r => r.requesterName === currentUser.name);
+  const pendingApprv = approvals.filter(a => a.status === "pending").length;
+  const myRequests   = requests.filter(r => r.requesterName === currentUser.name);
 
-  const pendingInvoices = [...INVOICES]
+  const pendingInvoices = [...invoices]
     .filter(i => i.status !== "paid")
     .sort((a, b) => {
       if (a.status === "overdue" && b.status !== "overdue") return -1;
@@ -56,27 +64,40 @@ export default function DashboardPage() {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
 
-  const maySpend = SPEND_BY_MONTH.find(m => m.month === "May")?.amount ?? 0;
+  /* compute spend from live requests */
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const spendByMonth = MONTHS.map(month => ({
+    month,
+    amount: requests.filter(r => new Date(r.createdAt).toLocaleString("en-IN",{month:"short"}) === month)
+      .reduce((s, r) => s + r.estimatedTotal, 0),
+  })).filter(m => m.amount > 0);
+
+  const depts: Department[] = ["event","r_and_d","embedded","software","general_office"];
+  const spendByDept = depts
+    .map(d => ({ label: DEPARTMENT_LABELS[d], value: requests.filter(r => r.department === d).reduce((s,r) => s+r.estimatedTotal, 0), color: DEPT_COLORS[d] }))
+    .filter(d => d.value > 0);
+
+  const maySpend = spendByMonth.find(m => m.month === "May")?.amount ?? 0;
 
   /* Role-specific quick actions */
   const actions =
     currentUser.role === "requester" ? [
-      { label: "My Requests",  count: myRequests.length,                                       href: "/procurement" },
-      { label: "Pending Appr", count: myRequests.filter(r => r.status === "pending_approval").length, href: "/procurement" },
-      { label: "Overdue",      count: overdue.length,                                          href: "/invoices"    },
-      { label: "Approvals",    count: pendingApprv,                                            href: "/approvals"   },
+      { label: "My Requests",  count: myRequests.length,                                              href: "/procurement" },
+      { label: "Pending Appr", count: myRequests.filter(r => r.status === "pending_approval").length, href: "/approvals"   },
+      { label: "Overdue",      count: overdue.length,                                                 href: "/invoices"    },
+      { label: "Approvals",    count: pendingApprv,                                                   href: "/approvals"   },
     ]
     : currentUser.role === "finance" ? [
-      { label: "Outstanding",  count: dueSoon.length + overdue.length,                        href: "/invoices"    },
-      { label: "Overdue",      count: overdue.length,                                          href: "/invoices"    },
-      { label: "Approvals",    count: pendingApprv,                                            href: "/approvals"   },
-      { label: "Vendors",      count: TOP_VENDORS.length,                                      href: "/vendors"     },
+      { label: "Outstanding",  count: dueSoon.length + overdue.length, href: "/invoices"    },
+      { label: "Overdue",      count: overdue.length,                  href: "/invoices"    },
+      { label: "Approvals",    count: pendingApprv,                    href: "/approvals"   },
+      { label: "Vendors",      count: TOP_VENDORS.length,              href: "/vendors"     },
     ]
     : /* management */ [
-      { label: "Pending Appr", count: pendingApprv,                                            href: "/approvals"   },
-      { label: "Overdue",      count: overdue.length,                                          href: "/invoices"    },
-      { label: "Total Req",    count: REQUESTS.length,                                         href: "/procurement" },
-      { label: "Vendors",      count: TOP_VENDORS.length,                                      href: "/vendors"     },
+      { label: "Pending Appr", count: pendingApprv,      href: "/approvals"   },
+      { label: "Overdue",      count: overdue.length,    href: "/invoices"    },
+      { label: "Total Req",    count: requests.length,   href: "/procurement" },
+      { label: "Vendors",      count: TOP_VENDORS.length,href: "/vendors"     },
     ];
 
   return (
@@ -145,7 +166,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            <SpendBars data={SPEND_BY_MONTH} />
+            <SpendBars data={spendByMonth} />
           </div>
 
           <div className="rounded-2xl p-5" style={{ background: "linear-gradient(160deg, #0D1270 0%, #181DA0 100%)" }}>
@@ -153,12 +174,12 @@ export default function DashboardPage() {
               <h3 className="text-[13px] font-semibold" style={{ color: "#fff" }}>By Department</h3>
               <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Jan – May 2026</p>
             </div>
-            {SPEND_BY_DEPARTMENT.length > 0 ? (
+            {spendByDept.length > 0 ? (
               <DonutChart
-                data={SPEND_BY_DEPARTMENT.map(d => ({ label: d.department, value: d.amount, color: d.color }))}
+                data={spendByDept.map(d => ({ label: d.label, value: d.value, color: d.color }))}
                 size={160}
                 dark
-                centerLabel={`₹${(SPEND_BY_DEPARTMENT.reduce((s,d)=>s+d.amount,0)/100000).toFixed(1)}L`}
+                centerLabel={`₹${(spendByDept.reduce((s,d)=>s+d.value,0)/100000).toFixed(1)}L`}
               />
             ) : (
               <div className="h-[140px] flex items-center justify-center">

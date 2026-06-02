@@ -3,9 +3,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { REQUESTS } from "@/lib/mock-data";
 import { formatCurrency, formatDate, STATUS_CONFIG, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
 import { useCurrentUser } from "@/contexts/UserContext";
+import { useData } from "@/contexts/DataContext";
 import type { RequestStatus } from "@/types";
 
 const STATUS_TABS: { label: string; value: RequestStatus | "all" }[] = [
@@ -30,17 +30,18 @@ function getStageIndex(status: RequestStatus): number {
 
 export default function ProcurementPage() {
   const { currentUser } = useCurrentUser();
+  const { requests } = useData();
   const [activeTab, setActiveTab] = useState<RequestStatus | "all">("all");
 
-  const filtered      = activeTab === "all" ? REQUESTS : REQUESTS.filter(r => r.status === activeTab);
-  const pendingCount  = REQUESTS.filter(r => r.status === "pending_approval").length;
+  const filtered      = activeTab === "all" ? requests : requests.filter(r => r.status === activeTab);
+  const pendingCount  = requests.filter(r => r.status === "pending_approval").length;
   const canRaise      = currentUser.role === "requester";
 
   return (
     <div className="anim-fade">
       <Header
         title="Procurement Requests"
-        subtitle={`${REQUESTS.length} requests`}
+        subtitle={`${requests.length} requests`}
         action={canRaise ? { label: "New Request", href: "/procurement/new" } : undefined}
       />
       <div className="p-6 space-y-4">
