@@ -1,199 +1,63 @@
 "use client";
-import { useState } from "react";
-import { CheckCircle2, XCircle, Clock, ChevronRight, Lock } from "lucide-react";
+import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Badge from "@/components/ui/Badge";
-import { formatCurrency, formatDate, DEPARTMENT_LABELS, DEPARTMENT_COLORS } from "@/lib/utils";
+import { formatCurrency, formatDate, PROCUREMENT_STATUS_CONFIG } from "@/lib/utils";
 import { useCurrentUser } from "@/contexts/UserContext";
 import { useData } from "@/contexts/DataContext";
-import type { Approval } from "@/types";
-
-function ApprovalRuleBanner() {
-  return (
-    <div className="card p-5 mb-6">
-      <div className="flex items-center gap-2 flex-wrap mb-5">
-        <span className="text-[13px] text-2">If</span>
-        <span className="text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ backgroundColor: "var(--primary-light)", color: "var(--primary)" }}>request</span>
-        <span className="text-[13px] text-3">exceeds</span>
-        <span className="text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ backgroundColor: "var(--warning-bg)", color: "var(--warning)" }}>₹15,000</span>
-        <span className="text-[13px] text-3">→ requires approval:</span>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="flex-1 flex items-center gap-3 p-3.5 rounded-xl border" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-2)" }}>
-          <div className="relative shrink-0">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #006FBA, #00BDCD)" }}>
-              <span className="text-white text-[12px] font-bold">JI</span>
-            </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center border-2 border-white" style={{ backgroundColor: "var(--warning)" }}>
-              <Clock size={8} className="text-white" />
-            </div>
-          </div>
-          <div>
-            <p className="text-[13px] font-semibold text-1">Jigar</p>
-            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Finance review</p>
-          </div>
-        </div>
-        <div className="shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
-          <ChevronRight size={14} style={{ color: "var(--primary)" }} />
-        </div>
-        <div className="flex-1 flex items-center gap-3 p-3.5 rounded-xl border" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-2)" }}>
-          <div className="flex gap-1.5 shrink-0">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: "linear-gradient(135deg, #006FBA, #00BDCD)" }}>AL</div>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 text-[10px] font-bold" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)", color: "var(--text-2)" }}>SA</div>
-          </div>
-          <div>
-            <p className="text-[13px] font-semibold text-1">Alok / Sanjeev</p>
-            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Final sign-off</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function ApprovalsPage() {
-  const { currentUser }   = useCurrentUser();
-  const { approvals, updateApprovalStatus } = useData();
-  const [rejectModal,   setRejectModal]   = useState<{ approvalId: string; requestId: string } | null>(null);
-  const [rejectReason,  setRejectReason]  = useState("");
+  const { currentUser } = useCurrentUser();
+  const { requests, loading } = useData();
 
-  const canApprove = currentUser.role === "management";
-  const pending    = approvals.filter(a => a.status === "pending");
-  const handled    = approvals.filter(a => a.status !== "pending");
-
-  const doApprove = (a: Approval) =>
-    updateApprovalStatus(a.id, a.requestId, "approved");
-
-  const doReject = () => {
-    if (!rejectModal) return;
-    updateApprovalStatus(rejectModal.approvalId, rejectModal.requestId, "rejected");
-    setRejectModal(null);
-    setRejectReason("");
-  };
-
-  const ApprovalCard = ({ a }: { a: Approval }) => {
-    const deptColor      = DEPARTMENT_COLORS[a.department];
-    const isHandled      = a.status !== "pending";
-    const advancePaid    = a.advancePaid ?? 0;
-    const balancePending = Math.max(0, a.estimatedTotal - advancePaid);
-
-    return (
-      <div className="card p-5" style={{ opacity: isHandled ? 0.6 : 1 }}>
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className="text-[11px] font-mono text-3">{a.requestNumber}</span>
-              <Badge label={DEPARTMENT_LABELS[a.department]} color={deptColor.text} bg={deptColor.bg} size="sm" />
-              {a.eventName && <span className="text-[11px] italic" style={{ color: "var(--text-3)" }}>{a.eventName}</span>}
-            </div>
-            <p className="text-[14px] font-semibold text-1 leading-snug">{a.items.map(i => i.name).join(", ")}</p>
-            <p className="text-[12px] text-3 mt-1">By {a.requesterName} · {formatDate(a.createdAt)}</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-[24px] font-bold text-1">{formatCurrency(a.estimatedTotal)}</p>
-            {advancePaid > 0 && (
-              <p className="text-[11px] mt-0.5" style={{ color: "var(--text-3)" }}>Bal. {formatCurrency(balancePending)}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-xl p-3 mb-4" style={{ backgroundColor: "var(--surface-2)" }}>
-          {a.items.map((item, i) => (
-            <div key={i} className="flex items-center justify-between text-[12px] py-0.5">
-              <span className="text-3">{item.qty}× {item.name}</span>
-              <span className="font-semibold text-1">{formatCurrency(item.qty * item.estimatedUnitPrice)}</span>
-            </div>
-          ))}
-          {advancePaid > 0 && (
-            <div className="flex items-center justify-between text-[12px] pt-2 mt-2 border-t" style={{ borderColor: "var(--border)" }}>
-              <span style={{ color: "var(--success)" }}>Advance paid</span>
-              <span className="font-semibold" style={{ color: "var(--success)" }}>{formatCurrency(advancePaid)}</span>
-            </div>
-          )}
-        </div>
-
-        {!isHandled ? (
-          canApprove ? (
-            <>
-              <button onClick={() => doApprove(a)} className="w-full btn-primary justify-center text-[13.5px] py-3 rounded-2xl">
-                <CheckCircle2 size={15} /> Approve
-              </button>
-              <button onClick={() => setRejectModal({ approvalId: a.id, requestId: a.requestId })} className="w-full text-center text-[12px] mt-2 py-1.5 font-medium" style={{ color: "var(--text-3)" }}>
-                Reject
-              </button>
-            </>
-          ) : (
-            <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium" style={{ backgroundColor: "var(--surface-2)", color: "var(--text-3)" }}>
-              <Lock size={13} /> Awaiting Alok / Sanjeev sign-off
-            </div>
-          )
-        ) : (
-          <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium"
-            style={{ backgroundColor: a.status === "approved" ? "var(--success-bg)" : "var(--danger-bg)", color: a.status === "approved" ? "var(--success)" : "var(--danger)" }}
-          >
-            {a.status === "approved" ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-            {a.status === "approved" ? "Approved" : "Rejected"}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const pending = requests.filter(r => r.status === "pending_approval");
 
   return (
     <div className="anim-fade">
       <Header title="Approvals" subtitle={pending.length > 0 ? `${pending.length} pending` : "All clear"} />
-      <div className="p-6">
-        <ApprovalRuleBanner />
+      <div className="p-4 md:p-6 space-y-4">
 
-        {!canApprove && (
-          <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-5 border" style={{ backgroundColor: "var(--surface-2)", borderColor: "var(--border)" }}>
-            <Lock size={13} style={{ color: "var(--text-3)" }} />
-            <p className="text-[12.5px]" style={{ color: "var(--text-3)" }}>
-              Viewing as <strong style={{ color: "var(--text-1)" }}>{currentUser.name}</strong> — switch to <strong style={{ color: "var(--text-1)" }}>Alok</strong> to approve or reject.
-            </p>
+        {loading ? (
+          <div className="card p-10 flex items-center justify-center">
+            <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Loading…</p>
           </div>
-        )}
-
-        {approvals.length === 0 ? (
+        ) : pending.length === 0 ? (
           <div className="card p-10 flex flex-col items-center gap-3">
-            <CheckCircle2 size={32} style={{ color: "var(--success)" }} />
-            <p className="text-[15px] font-semibold text-1">Nothing to approve</p>
-            <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Requests above ₹15,000 will appear here.</p>
+            <p className="text-[15px] font-semibold text-1">No pending approvals</p>
+            <p className="text-[13px]" style={{ color: "var(--text-3)" }}>All caught up!</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {pending.length > 0 && (
-              <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <h2 className="text-[12px] font-semibold text-3 uppercase tracking-widest">Pending</h2>
-                  <span className="text-[10px] text-white font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "var(--warning)" }}>{pending.length}</span>
+          <div className="card p-0 overflow-hidden">
+            <div className="tbl-head grid grid-cols-[2fr_1fr_1fr_1fr_120px] gap-4 px-5 py-2.5">
+              {["Procurement", "Category", "Amount", "Submitted By", "Action"].map(h => <span key={h}>{h}</span>)}
+            </div>
+            {pending.map(req => {
+              const cfg = PROCUREMENT_STATUS_CONFIG[req.status];
+              return (
+                <div key={req.id} className="tbl-row grid grid-cols-[2fr_1fr_1fr_1fr_120px] gap-4 items-center px-5 py-3.5">
+                  <div>
+                    <span className="text-[10.5px] font-mono" style={{ color: "var(--text-3)" }}>{req.requestNumber}</span>
+                    <p className="text-[13px] font-semibold text-1 truncate">{req.title}</p>
+                    {req.projectName && <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{req.projectName}</p>}
+                  </div>
+                  <p className="text-[12.5px] text-2">{req.category}</p>
+                  <p className="text-[13px] font-semibold text-1">{formatCurrency(req.totalAmount)}</p>
+                  <div>
+                    <p className="text-[12.5px] text-1">{req.requesterName}</p>
+                    <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{formatDate(req.createdAt)}</p>
+                  </div>
+                  <Link
+                    href={`/procurement/${req.id}`}
+                    className="btn-primary text-[12px] py-2 px-3 justify-center"
+                  >
+                    Review →
+                  </Link>
                 </div>
-                <div className="space-y-3">{pending.map(a => <ApprovalCard key={a.id} a={a} />)}</div>
-              </section>
-            )}
-            {handled.length > 0 && (
-              <section>
-                <h2 className="text-[12px] font-semibold text-3 uppercase tracking-widest mb-3">Handled</h2>
-                <div className="space-y-3">{handled.map(a => <ApprovalCard key={a.id} a={a} />)}</div>
-              </section>
-            )}
+              );
+            })}
           </div>
         )}
       </div>
-
-      {rejectModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card anim-slide w-full max-w-sm p-6" style={{ boxShadow: "var(--modal-shadow)" }}>
-            <h2 className="text-[16px] font-semibold text-1 mb-1">Reject Request</h2>
-            <p className="text-[13px] text-3 mb-4">Give a reason so the requester can act on it.</p>
-            <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="e.g. Please get 2 competing quotes first…" rows={3} className="field resize-none mb-4" />
-            <div className="flex gap-2.5">
-              <button onClick={() => setRejectModal(null)} className="btn-ghost flex-1 justify-center">Cancel</button>
-              <button onClick={doReject} className="flex-1 py-2.5 text-[13px] font-semibold text-white rounded-xl" style={{ backgroundColor: "var(--danger)" }}>Reject</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

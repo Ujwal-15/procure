@@ -8,12 +8,14 @@ import type { User } from "@/types";
      requester   → everyone else          (raises requests)
    ──────────────────────────────────────────────────────────── */
 export const USERS: User[] = [
-  /* ── Management (approvers) ── */
+  /* ── Developer (full access) ── */
+  { id: "u00", name: "Ujwal Hannehra",         email: "ujwal@4brains.in",             role: "developer",  avatar: "UH" },
+
+  /* ── Management / Owners (approve/reject) ── */
   { id: "u01", name: "Alok Kumar",             email: "alok@4brains.in",              role: "management", avatar: "AK" },
   { id: "u02", name: "Sanjeev Shankar Sinha",  email: "sanjeev@4brains.in",           role: "management", avatar: "SS" },
-  { id: "u03", name: "Ujwal Hannehra",         email: "ujwal@4brains.in",             role: "management", avatar: "UH" },
 
-  /* ── Finance ── */
+  /* ── Finance / Accountant ── */
   { id: "u04", name: "Jigar Parmar",           email: "jigar.parmar@4brains.in",      role: "finance",    avatar: "JP" },
 
   /* ── Operations / Requester ── */

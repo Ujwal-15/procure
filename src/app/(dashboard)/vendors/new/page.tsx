@@ -18,7 +18,7 @@ export default function NewVendorPage() {
   const { addVendor } = useData();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    name: "", contactName: "", phone: "", email: "", category: "", location: "",
+    name: "", contactName: "", phone: "", email: "", category: "",
     bankName: "", accountNumber: "", ifscCode: "", upiId: "", notes: "",
   });
 
@@ -34,11 +34,7 @@ export default function NewVendorPage() {
         phone:         form.phone,
         email:         form.email || undefined,
         category:      form.category,
-        location:      form.location,
-        bankName:      form.bankName || undefined,
-        accountNumber: form.accountNumber || undefined,
-        ifscCode:      form.ifscCode || undefined,
-        upiId:         form.upiId || undefined,
+        
         notes:         form.notes || undefined,
       });
       router.push("/vendors");
@@ -84,7 +80,6 @@ export default function NewVendorPage() {
               </div>
               <div className="col-span-2">
                 <label className="block text-[12px] font-medium text-1 mb-1.5">City / Location <span style={{ color: "var(--danger)" }}>*</span></label>
-                <input type="text" placeholder="e.g. Mumbai" value={form.location} onChange={e => update("location", e.target.value)} required className="field" />
               </div>
               <div className="col-span-2">
                 <label className="block text-[12px] font-medium text-1 mb-1.5">Notes <span className="font-normal" style={{ color: "var(--text-3)" }}>(optional)</span></label>

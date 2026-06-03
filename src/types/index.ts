@@ -1,158 +1,139 @@
-export type UserRole = "requester" | "finance" | "management";
+/* ─── Roles ──────────────────────────────────────────────────────────────── */
+export type UserRole = "developer" | "management" | "finance" | "requester";
+// developer  = Ujwal       — full access
+// management = Alok/Sanjeev — approve/reject, view all
+// finance    = Jigar        — payments, invoices, export
+// requester  = everyone else — create & edit own entries
 
-export type Department = "embedded" | "r_and_d" | "software" | "event" | "general_office";
-
-export type RequestStatus =
+/* ─── Procurement ───────────────────────────────────────────────────────── */
+export type ProcurementStatus =
   | "draft"
   | "pending_approval"
   | "approved"
   | "rejected"
-  | "ordered"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
+export type PaymentStatus =
+  | "unpaid"
   | "advance_paid"
-  | "received"
-  | "invoice_uploaded"
   | "partially_paid"
-  | "closed";
+  | "fully_paid"
+  | "on_hold";
 
-export type InvoiceStatus = "pending" | "partially_paid" | "paid" | "overdue";
+export type PaymentMode = "neft" | "imps" | "upi" | "cash" | "cheque" | "bank_transfer";
 
-export type DeliveryStatus = "pending" | "partial" | "received" | "rejected";
+export interface ProcurementRequest {
+  id: string;
+  requestNumber: string;
+  title: string;
+  category: string;
+  vendorId?: string;
+  vendorName?: string;
+  projectName?: string;
+  description?: string;
+  quantity?: number;
+  totalAmount: number;
+  paymentTerms?: string;
+  paymentDueDate?: string;
+  expectedDelivery?: string;
+  attachmentUrl?: string;
+  notes?: string;
+  status: ProcurementStatus;
+  paymentStatus: PaymentStatus;
+  amountPaid: number;
+  rejectionReason?: string;
+  requesterId: string;
+  requesterName: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export type PaymentMode = "neft" | "imps" | "upi" | "cash" | "cheque";
+export interface PaymentLog {
+  id: string;
+  procurementId: string;
+  paymentStatus: PaymentStatus;
+  amountPaid: number;
+  paymentDate: string;
+  paymentMode?: PaymentMode;
+  transactionRef?: string;
+  proofUrl?: string;
+  notes?: string;
+  loggedById: string;
+  loggedByName: string;
+  createdAt: string;
+}
 
-export type Location = string; /* open string — team spans multiple cities */
+export interface AuditLog {
+  id: string;
+  procurementId?: string;
+  userId: string;
+  userName: string;
+  action: string;
+  details?: Record<string, unknown>;
+  createdAt: string;
+}
 
+export interface EmailLog {
+  id: string;
+  recipientEmail: string;
+  recipientName: string;
+  subject: string;
+  emailType: string;
+  procurementId?: string;
+  sentAt: string;
+  sentBy?: string;
+}
+
+/* ─── Vendor ────────────────────────────────────────────────────────────── */
+export type VendorCategory =
+  | "Equipment Supplier"
+  | "Venue"
+  | "Logistics"
+  | "Labour Contractor"
+  | "AV Tech"
+  | "Fabrication"
+  | "Software"
+  | "Other";
+
+export type GstType = "Regular" | "Composition" | "Unregistered";
+export type AccountType = "Current" | "Savings";
+
+export interface Vendor {
+  id: string;
+  name: string;
+  category: string;
+  contactName: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  notes?: string;
+  /* Banking — accountant/developer only */
+  bankName?: string;
+  accountHolderName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  accountType?: AccountType;
+  upiId?: string;
+  /* GST — accountant/developer only */
+  gstin?: string;
+  gstRegistrationName?: string;
+  gstType?: GstType;
+  /* Meta */
+  isActive: boolean;
+  totalSpend: number;
+  lastActivityAt?: string;
+  createdAt: string;
+}
+
+/* ─── User ──────────────────────────────────────────────────────────────── */
 export interface User {
   id: string;
   name: string;
   email: string;
   phone?: string;
   role: UserRole;
-  location?: Location;
+  location?: string;
   avatar?: string;
-}
-
-export interface Vendor {
-  id: string;
-  name: string;
-  contactName: string;
-  phone: string;
-  email?: string;
-  category: string;
-  location: string;
-  bankName?: string;
-  accountNumber?: string;
-  ifscCode?: string;
-  upiId?: string;
-  notes?: string;
-  isActive: boolean;
-  totalPaid: number;
-  totalPending: number;
-  createdAt: string;
-}
-
-export interface ProcurementEvent {
-  id: string;
-  name: string;
-  location: string;
-  eventDate: string;
-  endDate?: string;
-  estimatedBudget: number;
-  status: "upcoming" | "active" | "completed" | "cancelled";
-  createdBy: string;
-  createdAt: string;
-}
-
-export interface RequestItem {
-  name: string;
-  qty: number;
-  unit: string;
-  estimatedUnitPrice: number;
-}
-
-export interface ProcurementRequest {
-  id: string;
-  requestNumber: string;
-  requesterId: string;
-  requesterName: string;
-  eventName?: string;
-  department: Department;
-  category: "event" | "general" | "r_and_d";
-  items: RequestItem[];
-  estimatedTotal: number;
-  advancePaid?: number;
-  notes?: string;
-  status: RequestStatus;
-  rejectionReason?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PurchaseOrder {
-  id: string;
-  poNumber: string;
-  requestId: string;
-  requestNumber: string;
-  vendorId: string;
-  vendorName: string;
-  department: Department;
-  eventName?: string;
-  items: RequestItem[];
-  totalAmount: number;
-  advanceRequired: boolean;
-  advanceAmount: number;
-  orderDate: string;
-  expectedDelivery: string;
-  actualDelivery?: string;
-  deliveryStatus: DeliveryStatus;
-  status: "active" | "closed" | "cancelled";
-}
-
-export interface Invoice {
-  id: string;
-  poId: string;
-  poNumber: string;
-  vendorId: string;
-  vendorName: string;
-  eventName?: string;
-  department: Department;
-  invoiceNumber: string;
-  invoiceDate: string;
-  dueDate: string;
-  grossAmount: number;
-  advancePaid: number;
-  balanceDue: number;
-  fileUrl?: string;
-  status: InvoiceStatus;
-  uploadedBy: string;
-  createdAt: string;
-}
-
-export interface Payment {
-  id: string;
-  invoiceId: string;
-  vendorName: string;
-  amount: number;
-  paymentDate: string;
-  paymentMode: PaymentMode;
-  referenceNumber: string;
-  isAdvance: boolean;
-  paidBy: string;
-  notes?: string;
-}
-
-export interface Approval {
-  id: string;
-  requestId: string;
-  requestNumber: string;
-  requesterName: string;
-  department: Department;
-  eventName?: string;
-  items: RequestItem[];
-  estimatedTotal: number;
-  advancePaid?: number;
-  approverId?: string;
-  status: "pending" | "approved" | "rejected";
-  notes?: string;
-  createdAt: string;
 }
