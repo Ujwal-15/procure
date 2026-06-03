@@ -22,6 +22,7 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
+        localStorage.setItem("app_user_email", email.trim().toLowerCase());
         window.location.href = "/dashboard";
       } else {
         const data = await res.json();

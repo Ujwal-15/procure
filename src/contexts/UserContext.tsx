@@ -9,22 +9,27 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | null>(null);
 
-/* Read app_user cookie (non-httpOnly) → find matching user */
 function resolveUser(): User {
-  if (typeof window === "undefined") return USERS[0]; // SSR fallback
+  if (typeof window === "undefined") return USERS[0];
+  try {
+    const stored = localStorage.getItem("app_user_email");
+    if (stored) {
+      const user = USERS.find(u => u.email.toLowerCase() === stored.toLowerCase());
+      if (user) return user;
+    }
+  } catch {}
   const match = document.cookie.match(/(?:^|;\s*)app_user=([^;]*)/);
   if (match) {
     const email = decodeURIComponent(match[1]).toLowerCase();
     const user  = USERS.find(u => u.email.toLowerCase() === email);
     if (user) return user;
   }
-  return USERS[0]; // fallback: first user
+  return USERS[0];
 }
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User>(USERS[0]);
 
-  /* After mount, read the cookie and set the real user */
   useEffect(() => {
     setCurrentUser(resolveUser());
   }, []);
