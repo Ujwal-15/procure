@@ -1,11 +1,9 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email,   setEmail]   = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [showPwd,  setShowPwd]  = useState(false);
   const [loading,  setLoading]  = useState(false);
@@ -24,7 +22,7 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         const data = await res.json();
         setError(data.error ?? "Login failed");
@@ -40,7 +38,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "var(--bg)" }}>
       <div className="w-full max-w-sm">
 
-        {/* Logo & heading */}
         <div className="flex flex-col items-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-4"
@@ -54,7 +51,6 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="card p-6 space-y-4">
 
-          {/* Email */}
           <div>
             <label className="block text-[12px] font-medium text-1 mb-1.5">Work email</label>
             <input
@@ -69,7 +65,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-[12px] font-medium text-1 mb-1.5">Password</label>
             <div className="relative">
